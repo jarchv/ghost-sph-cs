@@ -1,0 +1,1 @@
+/usr/bin/c++  -o3 -fopenmp   CMakeFiles/out.dir/src/main.cpp.o  -o out libbase.a /usr/lib/x86_64-linux-gnu/libglfw.so.3.2 /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/x86_64-linux-gnu/libGLEW.so 

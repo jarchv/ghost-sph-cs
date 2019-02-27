@@ -1,0 +1,2 @@
+/usr/bin/ar qc libbase.a  CMakeFiles/base.dir/src/tools/utils.cpp.o
+/usr/bin/ranlib libbase.a

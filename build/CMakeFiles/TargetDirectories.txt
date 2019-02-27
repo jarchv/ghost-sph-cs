@@ -1,0 +1,8 @@
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/install/strip.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/install/local.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/out.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/base.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/edit_cache.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/rebuild_cache.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/list_install_components.dir
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles/install.dir
