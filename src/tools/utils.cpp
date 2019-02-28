@@ -107,11 +107,18 @@ bool check_program_errors(GLuint program)
 
 GLuint create_quad_vao() {
 	GLuint vao = 0, vbo = 0;
-	float verts[] = { -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f,
-										1.0f,	-1.0f, 1.0f, 0.0f, 1.0f,	1.0f, 1.0f, 1.0f };
+	float verts[] = {  -1.0f, -1.0f, 
+                        0.0f,  0.0f, 
+                       -1.0f,  1.0f, 
+                        0.0f,  1.0f,
+						1.0f, -1.0f, 
+                        1.0f,  0.0f, 
+                        1.0f,  1.0f, 
+                        1.0f,  1.0f };
+
 	glGenBuffers( 1, &vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, 16 * sizeof( float ), verts, GL_STATIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, 16 * sizeof(float), verts, GL_STATIC_DRAW );
 	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 	glEnableVertexAttribArray( 0 );

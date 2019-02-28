@@ -52,3 +52,35 @@ GLuint create_program(const char* vertex_file_path, const char* fragment_file_pa
 
     return ProgramID;
 }
+
+
+GLuint create_accelerator(const char* compute_file_path)
+{
+    // Create the shaders
+    GLuint ComputeShaderID   = glCreateShader(GL_COMPUTE_SHADER);
+
+    std::string ComputeShaderCode   = check_read_shader(compute_file_path);   // Read the Compute Shader Code from the file
+    // Compile Compute Shader
+    printf("Compiling shader : %s\n", compute_file_path);
+    char const* ComputeSourcePointer = ComputeShaderCode.c_str();
+    glShaderSource(ComputeShaderID, 1, &ComputeSourcePointer, NULL);
+    glCompileShader(ComputeShaderID);
+
+    // Check Compute Shader
+    if (!check_shader_errors(ComputeShaderID))
+        return 0;
+
+    printf("\nLinking program...\n\n");
+    GLuint ProgramID = glCreateProgram();
+
+    glAttachShader(ProgramID, ComputeShaderID);    
+    glLinkProgram(ProgramID);
+
+    // Check the program
+    if(!check_program_errors(ProgramID));
+
+    glDetachShader(ProgramID, ComputeShaderID);
+    glDeleteShader(ComputeShaderID);
+
+    return ProgramID;
+}

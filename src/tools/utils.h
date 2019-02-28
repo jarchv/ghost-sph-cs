@@ -7,8 +7,8 @@
 #include <sstream>
 #include <vector>
 
-#define WINDOW_W 720
-#define WINDOW_H 480
+#define WINDOW_W 512
+#define WINDOW_H 512
 
 bool start();
 void stop();
