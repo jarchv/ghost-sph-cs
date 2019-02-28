@@ -72,3 +72,53 @@ std::string check_read_shader(const char* shader_file_path)
 
     return VertexShaderCode;
 }
+
+bool check_shader_errors(GLuint shaderID)
+{
+    GLint result = GL_FALSE;
+    int InfoLogLength;
+
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
+    if (!result)
+    {
+        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        std::vector<char> VertexShaderErrorMessage(InfoLogLength);
+        glGetShaderInfoLog(shaderID, InfoLogLength, &InfoLogLength, &VertexShaderErrorMessage[0]);
+        printf("Error: Compiler log:\n%s\n", &VertexShaderErrorMessage[0]);
+        return false;
+    }
+    return true;
+}
+
+bool check_program_errors(GLuint program)
+{
+    GLint result = GL_FALSE;
+    int InfoLogLength;
+    
+    glGetProgramiv(program, GL_LINK_STATUS, &result);
+    if (!result)
+    {
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        std::vector<char> ProgramErrorMessage(InfoLogLength);
+        glGetProgramInfoLog(program, InfoLogLength, &InfoLogLength, &ProgramErrorMessage[0]);
+        std::cerr << &ProgramErrorMessage[0] << std::endl;
+    }
+}
+
+GLuint create_quad_vao() {
+	GLuint vao = 0, vbo = 0;
+	float verts[] = { -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f,
+										1.0f,	-1.0f, 1.0f, 0.0f, 1.0f,	1.0f, 1.0f, 1.0f };
+	glGenBuffers( 1, &vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBufferData( GL_ARRAY_BUFFER, 16 * sizeof( float ), verts, GL_STATIC_DRAW );
+	glGenVertexArrays( 1, &vao );
+	glBindVertexArray( vao );
+	glEnableVertexAttribArray( 0 );
+	GLintptr stride = 4 * sizeof( float );
+	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, stride, NULL );
+	glEnableVertexAttribArray( 1 );
+	GLintptr offset = 2 * sizeof( float );
+	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset );
+	return vao;
+}

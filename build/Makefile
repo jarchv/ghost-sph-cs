@@ -182,6 +182,33 @@ base/fast:
 	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/build
 .PHONY : base/fast
 
+src/commons/loadshader.o: src/commons/loadshader.cpp.o
+
+.PHONY : src/commons/loadshader.o
+
+# target to build an object file
+src/commons/loadshader.cpp.o:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/loadshader.cpp.o
+.PHONY : src/commons/loadshader.cpp.o
+
+src/commons/loadshader.i: src/commons/loadshader.cpp.i
+
+.PHONY : src/commons/loadshader.i
+
+# target to preprocess a source file
+src/commons/loadshader.cpp.i:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/loadshader.cpp.i
+.PHONY : src/commons/loadshader.cpp.i
+
+src/commons/loadshader.s: src/commons/loadshader.cpp.s
+
+.PHONY : src/commons/loadshader.s
+
+# target to generate assembly for a file
+src/commons/loadshader.cpp.s:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/loadshader.cpp.s
+.PHONY : src/commons/loadshader.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -250,6 +277,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
 	@echo "... install"
+	@echo "... src/commons/loadshader.o"
+	@echo "... src/commons/loadshader.i"
+	@echo "... src/commons/loadshader.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

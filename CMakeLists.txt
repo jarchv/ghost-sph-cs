@@ -6,8 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
 file(GLOB TOOLS src/tools/*.cpp)
+file(GLOB COMMONS src/commons/*.cpp)
 add_library(base
     ${TOOLS}
+    ${COMMONS}
 )
 
 target_compile_features(base PUBLIC cxx_std_11)

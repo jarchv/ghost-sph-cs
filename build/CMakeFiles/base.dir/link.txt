@@ -1,2 +1,2 @@
-/usr/bin/ar qc libbase.a  CMakeFiles/base.dir/src/tools/utils.cpp.o
+/usr/bin/ar qc libbase.a  CMakeFiles/base.dir/src/tools/utils.cpp.o CMakeFiles/base.dir/src/commons/loadshader.cpp.o
 /usr/bin/ranlib libbase.a

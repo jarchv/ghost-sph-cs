@@ -6,9 +6,17 @@
 
 #IncludeRegexTransform: 
 
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.h
+GL/glew.h
+-
+GLFW/glfw3.h
+-
+
 /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/main.cpp
 tools/utils.h
 /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/tools/utils.h
+commons/loadshader.h
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.h
 
 /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/tools/utils.h
 GL/glew.h
@@ -24,5 +32,7 @@ iostream
 fstream
 -
 sstream
+-
+vector
 -
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #define WINDOW_W 720
 #define WINDOW_H 480
@@ -18,5 +19,7 @@ bool check_program_errors(GLuint program);
 
 GLuint create_vao();
 GLuint create_program();
+
+GLuint create_quad_vao();
 
 extern GLFWwindow *window;

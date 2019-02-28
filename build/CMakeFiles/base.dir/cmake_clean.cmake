@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/base.dir/src/tools/utils.cpp.o"
+  "CMakeFiles/base.dir/src/commons/loadshader.cpp.o"
   "libbase.pdb"
   "libbase.a"
 )

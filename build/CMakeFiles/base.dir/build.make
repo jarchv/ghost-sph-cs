@@ -70,17 +70,32 @@ CMakeFiles/base.dir/src/tools/utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/base.dir/src/tools/utils.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/tools/utils.cpp -o CMakeFiles/base.dir/src/tools/utils.cpp.s
 
+CMakeFiles/base.dir/src/commons/loadshader.cpp.o: CMakeFiles/base.dir/flags.make
+CMakeFiles/base.dir/src/commons/loadshader.cpp.o: ../src/commons/loadshader.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/base.dir/src/commons/loadshader.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/base.dir/src/commons/loadshader.cpp.o -c /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.cpp
+
+CMakeFiles/base.dir/src/commons/loadshader.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/base.dir/src/commons/loadshader.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.cpp > CMakeFiles/base.dir/src/commons/loadshader.cpp.i
+
+CMakeFiles/base.dir/src/commons/loadshader.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/base.dir/src/commons/loadshader.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.cpp -o CMakeFiles/base.dir/src/commons/loadshader.cpp.s
+
 # Object files for target base
 base_OBJECTS = \
-"CMakeFiles/base.dir/src/tools/utils.cpp.o"
+"CMakeFiles/base.dir/src/tools/utils.cpp.o" \
+"CMakeFiles/base.dir/src/commons/loadshader.cpp.o"
 
 # External object files for target base
 base_EXTERNAL_OBJECTS =
 
 libbase.a: CMakeFiles/base.dir/src/tools/utils.cpp.o
+libbase.a: CMakeFiles/base.dir/src/commons/loadshader.cpp.o
 libbase.a: CMakeFiles/base.dir/build.make
 libbase.a: CMakeFiles/base.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library libbase.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libbase.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/base.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/base.dir/link.txt --verbose=$(VERBOSE)
 
