@@ -16,7 +16,6 @@ bool start()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    
 
     window = glfwCreateWindow(WINDOW_W , WINDOW_H, "Ghost SPH", 0, 0);
 
@@ -106,34 +105,7 @@ bool check_program_errors(GLuint program)
     }
 }
 
-GLuint create_quad_vao() {
-	/*
-    GLuint vao = 0, vbo = 0;
-
-    float verts[] = {  -1.0f, -1.0f, // (x    , y    )
-                        0.0f,  0.0f, 
-                       -1.0f,  1.0f, // (x    , y + h)
-                        0.0f,  1.0f,
-                        1.0f, -1.0f, // (x + w, y    )
-                        1.0f,  0.0f, 
-                        1.0f,  1.0f, // (x + w, y + h)
-                        1.0f,  1.0f };
-
-	glGenBuffers( 1, &vbo );
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, 16 * sizeof(float), verts, GL_STATIC_DRAW );
-	glGenVertexArrays( 1, &vao );
-	glBindVertexArray( vao );
-	glEnableVertexAttribArray( 0 );
-	GLintptr stride = 4 * sizeof( float );
-	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, stride, NULL );
-	glEnableVertexAttribArray( 1 );
-	GLintptr offset = 2 * sizeof( float );
-	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset );
-    */
-
-
-
+GLuint create_vao() {
     std::vector<glm::vec4> FluidParticles(num_fluid_p);
 
     for (int iprt = 0; iprt < num_fluid_p; iprt++)

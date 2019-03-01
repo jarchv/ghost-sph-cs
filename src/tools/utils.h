@@ -28,6 +28,6 @@ bool check_program_errors(GLuint program);
 GLuint create_vao();
 GLuint create_program();
 
-GLuint create_quad_vao();
+GLuint create_vao();
 
 extern GLFWwindow *window;

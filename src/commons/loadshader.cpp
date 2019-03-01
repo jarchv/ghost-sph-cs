@@ -59,11 +59,11 @@ GLuint create_program(  const char* vertex_file_path,
     // Check the program
     if(!check_program_errors(ProgramID));
 
-    //glDetachShader(ProgramID, VertexShaderID);
-    //glDetachShader(ProgramID, FragmentShaderID);
+    glDetachShader(ProgramID, VertexShaderID);
+    glDetachShader(ProgramID, FragmentShaderID);
 
-    //glDeleteShader(VertexShaderID);
-    //glDeleteShader(FragmentShaderID);
+    glDeleteShader(VertexShaderID);
+    glDeleteShader(FragmentShaderID);
 
     return ProgramID;
 }
@@ -94,8 +94,8 @@ GLuint create_accelerator(const char* compute_file_path)
     // Check the program
     if(!check_program_errors(ProgramID));
 
-    //glDetachShader(ProgramID, ComputeShaderID);
-    //glDeleteShader(ComputeShaderID);
+    glDetachShader(ProgramID, ComputeShaderID);
+    glDeleteShader(ComputeShaderID);
 
     return ProgramID;
 }
