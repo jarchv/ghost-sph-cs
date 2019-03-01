@@ -182,6 +182,33 @@ base/fast:
 	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/build
 .PHONY : base/fast
 
+src/commons/controls.o: src/commons/controls.cpp.o
+
+.PHONY : src/commons/controls.o
+
+# target to build an object file
+src/commons/controls.cpp.o:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/controls.cpp.o
+.PHONY : src/commons/controls.cpp.o
+
+src/commons/controls.i: src/commons/controls.cpp.i
+
+.PHONY : src/commons/controls.i
+
+# target to preprocess a source file
+src/commons/controls.cpp.i:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/controls.cpp.i
+.PHONY : src/commons/controls.cpp.i
+
+src/commons/controls.s: src/commons/controls.cpp.s
+
+.PHONY : src/commons/controls.s
+
+# target to generate assembly for a file
+src/commons/controls.cpp.s:
+	$(MAKE) -f CMakeFiles/base.dir/build.make CMakeFiles/base.dir/src/commons/controls.cpp.s
+.PHONY : src/commons/controls.cpp.s
+
 src/commons/loadshader.o: src/commons/loadshader.cpp.o
 
 .PHONY : src/commons/loadshader.o
@@ -277,6 +304,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
 	@echo "... install"
+	@echo "... src/commons/controls.o"
+	@echo "... src/commons/controls.i"
+	@echo "... src/commons/controls.s"
 	@echo "... src/commons/loadshader.o"
 	@echo "... src/commons/loadshader.i"
 	@echo "... src/commons/loadshader.s"

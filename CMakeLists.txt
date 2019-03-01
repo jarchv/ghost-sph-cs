@@ -5,11 +5,13 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
-file(GLOB TOOLS src/tools/*.cpp)
-file(GLOB COMMONS src/commons/*.cpp)
+file(GLOB TOOLS 	src/tools/*.cpp)
+file(GLOB COMMONS 	src/commons/*.cpp)
+file(GLOB PHYSICS 	src/physics/*.cpp)
 add_library(base
     ${TOOLS}
     ${COMMONS}
+    ${PHYSICS}
 )
 
 target_compile_features(base PUBLIC cxx_std_11)

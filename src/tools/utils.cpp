@@ -107,13 +107,23 @@ bool check_program_errors(GLuint program)
 
 GLuint create_quad_vao() {
 	GLuint vao = 0, vbo = 0;
-	float verts[] = {  -1.0f, -1.0f, 
+    /*
+    float verts[] = {  -0.5f, -0.5f, // (x    , y    )
                         0.0f,  0.0f, 
-                       -1.0f,  1.0f, 
+                       -0.5f,  0.5f, // (x    , y + h)
                         0.0f,  1.0f,
-						1.0f, -1.0f, 
+						0.5f, -0.5f, // (x + w, y    )
                         1.0f,  0.0f, 
-                        1.0f,  1.0f, 
+                        0.5f,  0.5f, // (x + w, y + h)
+                        1.0f,  1.0f };
+    */
+    float verts[] = {  -1.0f, -1.0f, // (x    , y    )
+                        0.0f,  0.0f, 
+                       -1.0f,  1.0f, // (x    , y + h)
+                        0.0f,  1.0f,
+                        1.0f, -1.0f, // (x + w, y    )
+                        1.0f,  0.0f, 
+                        1.0f,  1.0f, // (x + w, y + h)
                         1.0f,  1.0f };
 
 	glGenBuffers( 1, &vbo );
@@ -127,5 +137,25 @@ GLuint create_quad_vao() {
 	glEnableVertexAttribArray( 1 );
 	GLintptr offset = 2 * sizeof( float );
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid *)offset );
-	return vao;
+
+    Particle FluidParticles[num_fluid_p];
+
+    for (int iprt = 0; iprt < num_fluid_p; iprt++)
+    {
+        FluidParticles[iprt].position = glm::vec3(-5.0 + float(iprt*10.0),0.0,0.0);
+    }
+
+    GLuint positions_vbo;
+    glGenBuffers(1, &positions_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, positions_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, num_fluid_p * sizeof(struct Particle), &FluidParticles[0], GL_STATIC_DRAW);
+
+
+    glEnableVertexAttribArray(2);
+    GLintptr stride2 = 3 * sizeof(float);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positions_vbo);
+
+    return vao;
 }
