@@ -5,14 +5,22 @@ struct Particle
     vec3 position;
 };
 
-layout (local_size_x = 1, local_size_y = 1) in;
-layout (rgba32f, binding = 0) uniform image2D img_output;
+layout (local_size_x = 256) in;
+//layout (rgba32f, binding = 0) uniform image2D img_output;
 
-layout(std430, binding = 1) buffer pblock 
+/*
+layout(std430, binding = 0) buffer pblock 
 { 
     Particle FluidParticles[]; 
 };
+*/
+layout(std430, binding = 0) buffer pblock 
+{ 
+    vec4 FluidParticles[]; 
+};
 
+layout (location = 0) uniform float dt;
+/*
 vec4 particles(float sphere_r, ivec2 pixel_coords, float dt)
 {
     vec4 pixel = vec4(0.8, 0.8, 0.8, 1.0);
@@ -32,6 +40,7 @@ vec4 particles(float sphere_r, ivec2 pixel_coords, float dt)
     for (int i = 0; i < 2; i++)
     {
         vec3 sphere_c = vec3 (FluidParticles[i].position.x, FluidParticles[i].position.y + dt, -10.0+float(i*6));
+        //vec3 sphere_c = vec3 (-1.0 + float(i*2.0), 0.0 + dt, -10.0+float(i*6));
         //float sphere_r = 1.0;
 
         vec3 omc = ray_o - sphere_c;
@@ -42,7 +51,7 @@ vec4 particles(float sphere_r, ivec2 pixel_coords, float dt)
 
         if (bsqmc >= 0.0)
         {
-            float factor = (bsqmc + 0.2f)/(sphere_r * sphere_r);
+            float factor = (bsqmc + 0.1f)/(sphere_r * sphere_r);
             
             if (factor > 1)
                 factor = 1;
@@ -54,14 +63,28 @@ vec4 particles(float sphere_r, ivec2 pixel_coords, float dt)
     return pixel;   
     //imageStore (img_output, pixel_coords, pixel);  
 }
+*/
+//uniform float dt;
 
-uniform float dt;
 void main()
 {
-    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    int N = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
+    int index = int(gl_GlobalInvocationID);
 
-    vec4 pixel =  particles(1.0, pixel_coords, dt);
-    imageStore(img_output, pixel_coords, pixel);  
+    //vec3 position = FluidParticles[index].xyz;
+    FluidParticles[index].xyz += vec3(dt, 0.0, 0.0);
+
+    //for(int i = 0; i < N; i++)
+    //{
+    //    FluidParticles[index].xyz[i] += vec3(dt, 0.0, 0.0);;
+    //}
+    //FluidParticles[index].position.xyz += vec3(dt, 0.0, 0.0);
+    //vec3 position = FluidParticles.position[index].xyz;
+    //vec3 position = FluidParticles.position[index].xyz;
+    //ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+
+    //vec4 pixel =  particles(0.5, pixel_coords, dt);
+    //imageStore(img_output, pixel_coords, pixel);  
 
     /*
     vec4 pixel = vec4(0.8, 0.8, 0.8, 1.0);

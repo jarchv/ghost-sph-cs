@@ -2,13 +2,17 @@
 #include "loadshader.h"
 #include "../tools/utils.h"
 
-GLuint create_program(const char* vertex_file_path, const char* fragment_file_path)
+GLuint create_program(  const char* vertex_file_path, 
+                        const char* geometry_file_path,
+                        const char* fragment_file_path)
 {
     // Create the shaders
     GLuint VertexShaderID   = glCreateShader(GL_VERTEX_SHADER);
+    GLuint GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
     std::string VertexShaderCode   = check_read_shader(vertex_file_path);   // Read the Vertex Shader Code from the file
+    std::string GeometryShaderCode = check_read_shader(geometry_file_path);   // Read the Geometry Shader Code from the file
     std::string FragmentShaderCode = check_read_shader(fragment_file_path); // Read the Fragment Shader code from the file
 
     // Compile Vertex Shader
@@ -19,6 +23,16 @@ GLuint create_program(const char* vertex_file_path, const char* fragment_file_pa
 
     // Check Vertex Shader
     if (!check_shader_errors(VertexShaderID))
+        return 0;
+
+    // Compile Geometry Shader
+    printf("Compiling shader : %s\n", geometry_file_path);
+    char const* GeometrySourcePointer = GeometryShaderCode.c_str();
+    glShaderSource(GeometryShaderID, 1, &GeometrySourcePointer, NULL);
+    glCompileShader(GeometryShaderID);
+
+    // Check Vertex Shader
+    if (!check_shader_errors(GeometryShaderID))
         return 0;
 
     // Compile Fragment Shader
@@ -37,6 +51,7 @@ GLuint create_program(const char* vertex_file_path, const char* fragment_file_pa
     GLuint ProgramID = glCreateProgram();
 
     glAttachShader(ProgramID, VertexShaderID);
+    glAttachShader(ProgramID, GeometryShaderID);
     glAttachShader(ProgramID, FragmentShaderID);
     
     glLinkProgram(ProgramID);
@@ -44,11 +59,11 @@ GLuint create_program(const char* vertex_file_path, const char* fragment_file_pa
     // Check the program
     if(!check_program_errors(ProgramID));
 
-    glDetachShader(ProgramID, VertexShaderID);
-    glDetachShader(ProgramID, FragmentShaderID);
+    //glDetachShader(ProgramID, VertexShaderID);
+    //glDetachShader(ProgramID, FragmentShaderID);
 
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
+    //glDeleteShader(VertexShaderID);
+    //glDeleteShader(FragmentShaderID);
 
     return ProgramID;
 }
@@ -79,8 +94,8 @@ GLuint create_accelerator(const char* compute_file_path)
     // Check the program
     if(!check_program_errors(ProgramID));
 
-    glDetachShader(ProgramID, ComputeShaderID);
-    glDeleteShader(ComputeShaderID);
+    //glDetachShader(ProgramID, ComputeShaderID);
+    //glDeleteShader(ComputeShaderID);
 
     return ProgramID;
 }

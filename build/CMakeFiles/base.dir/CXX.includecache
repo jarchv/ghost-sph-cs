@@ -6,6 +6,20 @@
 
 #IncludeRegexTransform: 
 
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.cpp
+iostream
+-
+loadshader.h
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.h
+../tools/utils.h
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/tools/utils.h
+
+/home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/commons/loadshader.h
+GL/glew.h
+-
+GLFW/glfw3.h
+-
+
 /home/jose/Documentos/cs/crs/c2/computacion-grafica/final/ghost-sph-cs/src/physics/sphere.h
 glm/glm.hpp
 -
@@ -22,6 +36,12 @@ utils.h
 GL/glew.h
 -
 GLFW/glfw3.h
+-
+glm/gtc/random.hpp
+-
+glm/gtc/matrix_transform.hpp
+-
+glm/gtc/type_ptr.hpp
 -
 stdio.h
 -

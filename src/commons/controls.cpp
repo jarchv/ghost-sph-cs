@@ -21,7 +21,7 @@ glm::vec3 position = glm::vec3(0.0, 0.0, 1.0);
 float horizontalAngle = 3.14f;
 float verticalAngle   = 0.0f;
 
-float initialFov      = 45.0f;
+float initialFov      = 90.0f;
 
 float speed 		  = 3.0f;
 float mouseSpeed 	  = 0.001f;
@@ -56,12 +56,14 @@ void computeMatricesFromInputs()
 
 	float FoV = initialFov;
 
-	ProjectionMatrix = glm::perspective(glm::radians(FoV), 1.0f/3.0f, 100.0f, 100.f);
+	ProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f/3.0f, 0.1f, 100.f);
+	/*
 	ViewMatrix  	 = glm::lookAt(
 								position,
 								position + direction,
 								glm::vec3(0.0,0.0,-1.0)
 								);
-
+	*/
+	ViewMatrix 		 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0,-30.0f));
 	lastTime = currentTime;
 }	

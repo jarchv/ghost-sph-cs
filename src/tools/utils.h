@@ -1,5 +1,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/random.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <stdio.h>
 #include <assert.h>
 #include <iostream>
@@ -8,10 +12,10 @@
 #include <vector>
 #include "../physics/sphere.h"
 
-#define WINDOW_W 512
-#define WINDOW_H 512
+#define WINDOW_W 640
+#define WINDOW_H 480
 
-const int num_fluid_p = 2;
+const int num_fluid_p = 1024;
 
 bool start();
 void stop();
