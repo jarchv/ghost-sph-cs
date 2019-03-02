@@ -62,14 +62,18 @@ int main() {
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_ONE, GL_ONE);
 
+    /*
+    * Solid Parameters
+    * ================
+    */
 
-    float obj_radio    = 2.0;
+    float obj_radio    = 10.0;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
     
     std::vector<float> obj_color  = {1.0, 0.3, 0.3};
-    std::vector<float> obj_center = {0.0 , 0.0, 0.0};
+    std::vector<float> obj_center = {0.0, 0.0, 0.0};
 
  
     
@@ -123,20 +127,30 @@ int main() {
     GLuint ViewMatrixID  = glGetUniformLocation(object_program, "V");
     GLuint ModelMatrixID = glGetUniformLocation(object_program, "M");  
 
-    glm::vec3 lightPos = glm::vec3(-10,5,-5);
+    glm::vec3 lightPos = glm::vec3(-10,5,-15);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(TransparentID,1.0);
+
+
+    /*
+    * Time query:
+    * ==========
+    */
 
     GLuint query;
     glGenQueries(1, &query);
 
+    int nframe = 0;
 	while(!glfwWindowShouldClose(window))
 	{
 		//glClear(GL_COLOR_BUFFER_BIT);
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        nframe++;
         glBeginQuery(GL_TIME_ELAPSED, query);
 		glUseProgram(acceleration_program);
-		//glUniform1f(0,deltaTime);
+		glUniform1f(1,num_fluid_p);
+        glUniform1i(2,nframe);
+
 		glDispatchCompute(num_fluid_p/256, 1, 1);
 		glEndQuery(GL_TIME_ELAPSED);
 		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -146,22 +160,23 @@ int main() {
 
 		//MVP matrix
 		computeMatricesFromInputs();
-		
-		//glm::mat4 ProjectionMatrix  	= getProjectionMatrix();
-		//glm::mat4 ViewMatrix 			= getViewMatrix();
+		glm::mat4 ProjectionMatrix  	= getProjectionMatrix();
+		glm::mat4 ViewMatrix 			= getViewMatrix();
 
-		//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-		//glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+		glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
 		glBindVertexArray(vao);
-		//glDrawArrays(GL_POINTS, 0, num_fluid_p/3);
+		glDrawArrays(GL_POINTS, 0, num_fluid_p);
         //glClear(GL_DEPTH_BUFFER_BIT);
-		glUseProgram(object_program);
-		computeMatricesFromInputs();
-		glm::mat4 ProjectionMatrix  = getProjectionMatrix();
-		glm::mat4 ViewMatrix 		= getViewMatrix();
+		
+        glUseProgram(object_program);
+		//computeMatricesFromInputs();
+		//glm::mat4 ProjectionMatrix  = getProjectionMatrix();
+		//glm::mat4 ViewMatrix 		= getViewMatrix();
 		glm::mat4 ModelMatrix       = glm::mat4(1.0);
         glm::mat4 MVP               = ProjectionMatrix * ViewMatrix * ModelMatrix;   
+        
         
         // Send our transformation to the currently bound shader, 
 		// in the "MVP" uniform
@@ -169,10 +184,10 @@ int main() {
         glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
         glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
 
-        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(4);
         glBindBuffer(GL_ARRAY_BUFFER, objectbuffer);
         glVertexAttribPointer(
-            0,          // attibute 2, must match the layout in the shader
+            4,          // attibute 2, must match the layout in the shader
             3,          // size
             GL_FLOAT,   // type
             GL_FALSE,   // normalizerd?
@@ -180,11 +195,13 @@ int main() {
             (void*)0    // array buffer offset
         );
 
+
+
         // 2th attribute buffer : colors
-        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(5);
         glBindBuffer(GL_ARRAY_BUFFER, objectcolor_buffer);
         glVertexAttribPointer(
-            1,          // attibute 2, must match the layout in the shader
+            5,          // attibute 2, must match the layout in the shader
             3,          // size
             GL_FLOAT,   // type
             GL_FALSE,   // normalizerd?
@@ -193,23 +210,23 @@ int main() {
         );
         
         // 3th attribute buffer : colors
-        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(6);
         glBindBuffer(GL_ARRAY_BUFFER, objectnormal_buffer);
         glVertexAttribPointer(
-            2,          // attibute 2, must match the layout in the shader
+            6,          // attibute 2, must match the layout in the shader
             3,          // size
             GL_FLOAT,   // type
             GL_FALSE,   // normalizerd?
             0,          // stride
             (void*)0    // array buffer offset
         );
-        
+
         glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-
+        //glDisableVertexAttribArray(0);
+        //glDisableVertexAttribArray(1);
+        //glDisableVertexAttribArray(2);
+        
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			glfwSetWindowShouldClose(window, 1);

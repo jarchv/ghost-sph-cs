@@ -20,7 +20,12 @@ struct Particle{
 #define PI 3.14159
 
 void set_positions(std::vector<glm::vec4>& positions, int n);
-void initializer(Particle System[], std::vector<glm::vec4>& positions, int n);
+void initializer(   std::vector<glm::vec4>& positions, 
+                    std::vector<glm::vec4>& velocity,
+                    std::vector<glm::vec4>& force,
+                    std::vector<float>& density,
+                    std::vector<float>& pressure,
+                    int n);
 /*
 void SetSphereNormals(  GLfloat* g_spherevertex_buffer_data,
                         GLfloat* g_spherenormal_buffer_data,

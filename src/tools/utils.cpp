@@ -127,9 +127,13 @@ bool check_program_errors(GLuint program)
 }
 
 GLuint create_vao() {
-    std::vector<glm::vec4> positionData(num_fluid_p);
-    Particle FluidParticles[num_fluid_p];
-    initializer(FluidParticles, positionData, num_fluid_p);
+    std::vector<glm::vec4>  positionData(num_fluid_p);
+    std::vector<glm::vec4>  velocityData(num_fluid_p);
+    std::vector<glm::vec4>  forceData(num_fluid_p);
+    std::vector<float>      densityData(num_fluid_p);
+    std::vector<float>      pressureData(num_fluid_p);
+
+    initializer(positionData, velocityData, forceData, densityData, pressureData, num_fluid_p);   
 
     GLuint vao;
     
@@ -141,17 +145,24 @@ GLuint create_vao() {
     glBindBuffer(GL_ARRAY_BUFFER, particles_vbo);
     glBufferData(GL_ARRAY_BUFFER, num_fluid_p * sizeof(glm::vec4), &positionData[0], GL_STATIC_DRAW);
 
-    GLuint fluid_vbo;
-    glGenBuffers(1, &fluid_vbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fluid_vbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, num_fluid_p * sizeof(struct Particle), &FluidParticles[0], GL_STATIC_DRAW);
+    GLuint velocities_vbo;
+    glGenBuffers(1, &velocities_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocities_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, num_fluid_p * sizeof(glm::vec4), &velocityData[0], GL_STATIC_DRAW);
+
+    
+    
 
     glEnableVertexAttribArray(0);
+
     GLintptr stride = 4 * sizeof(GLfloat);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, (char*)0 + 0*sizeof(GLfloat));
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particles_vbo);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fluid_vbo);
+    const GLuint ssbos[] = {particles_vbo, velocities_vbo};
+    glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 2, ssbos);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particles_vbo);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fluid_ssbo);
 
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     return vao;
 }

@@ -22,19 +22,25 @@ void set_positions(std::vector<glm::vec4>& positions, glm::vec3 parallelepiped, 
 	}
 }
 
-void initializer(Particle System[], std::vector<glm::vec4>& positions, int n)
+void initializer(   std::vector<glm::vec4>& positions, 
+                    std::vector<glm::vec4>& velocity,
+                    std::vector<glm::vec4>& force,
+                    std::vector<float>& density,
+                    std::vector<float>& pressure,
+                    int n)
 {
-	glm::vec3 parallelepiped 	= glm::vec3(2.0,2.0,6.0);
+	glm::vec3 parallelepiped 	= glm::vec3(6.0,6.0,10.0);
 	glm::vec3 center			= glm::vec3(0.0,0.0,0.0);
 
 	set_positions(positions, parallelepiped, center, n);
 
+    
 	for (int i = 0; i < n; i++)
 	{	
-		System[i].velocity 	= glm::vec4(0);
-		System[i].force     = glm::vec4(0);
-		System[i].density0  = 1000.0;
-		System[i].density   = 1000.0;
+        velocity[i] = glm::vec4(0.0,0.0,0.0,0.0);
+		force[i]    = glm::vec4(0.0,0.0,0.0,0.0);
+		density[i]  = 1000.0;
+		pressure[i] = 0.0;
 	}
 }
 

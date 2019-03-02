@@ -20,9 +20,9 @@ the position of the vertex for each run of the vertex shader.
 
 */
 
-layout(location = 0) in vec3 vertexPosition_modelspace;
-layout(location = 1) in vec3 vertexColor;
-layout(location = 2) in vec3 vertexNormal_modelspace;
+layout(location = 4) in vec3 vertexPosition_modelspace;
+layout(location = 5) in vec3 vertexColor;
+layout(location = 6) in vec3 vertexNormal_modelspace;
 
 // Output data: will be interpolated for each fragment
 out vec3 fragmentColor;
