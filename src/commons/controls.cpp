@@ -18,13 +18,12 @@ glm::vec3 position = glm::vec3(0.0, 0.0, -10.0);
 
 // Initial angles : 
 
-float horizontalAngle = 3.14f;
+float initialFov      = 45.0f;
+
+float horizontalAngle = 0.0f;
 float verticalAngle   = 0.0f;
-
-float initialFov      = 90.0f;
-
 float speed 		  = 3.0f;
-float mouseSpeed 	  = 0.01f;
+float mouseSpeed 	  = 0.001f;
 
 void computeMatricesFromInputs()
 {
@@ -32,14 +31,7 @@ void computeMatricesFromInputs()
 
 	double currentTime     = glfwGetTime();
 	float  deltaTime 	   = float(currentTime - lastTime);
-
-	glm::vec3 direction(
-		 0.0, 
-		 0.0,
-		-1.0
-	);	
-
-	/*
+	
 	// Get mouse position
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
@@ -52,12 +44,13 @@ void computeMatricesFromInputs()
 	verticalAngle   += mouseSpeed * float(WINDOW_H/2 - ypos );
 
 	// Direction (static)
+	
 	glm::vec3 direction(
-		cos(verticalAngle) * sin(horizontalAngle), 
+		cos(verticalAngle) * sin(horizontalAngle),
 		sin(verticalAngle),
 		cos(verticalAngle) * cos(horizontalAngle)
 	);	
-	*/
+	
 	
 	// Right vector
 	glm::vec3 right = glm::vec3(
@@ -71,25 +64,31 @@ void computeMatricesFromInputs()
 		position += direction * deltaTime * speed;
 	}
 
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		position -= direction * deltaTime * speed;
 	}
-	/*
+	
 	// Strafe right
 	if (glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-		position -= right * deltaTime * speed;
+		position += right * deltaTime * speed;
 	}
 	// Strafe left
-	else if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
+	if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
 		position -= right * deltaTime * speed;
 	}
-	*/
+	
 	float FoV = initialFov;
 	
 	ProjectionMatrix = glm::perspective(FoV, 4.0f/3.0f, 0.1f, 100.f);
 
-	ViewMatrix 		 = glm::translate(glm::mat4(1.0f), position);
-	ViewMatrix 		 = glm::rotate(ViewMatrix, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	//ViewMatrix 		 = glm::translate(glm::mat4(1.0f), position);
+	//ViewMatrix 		 = glm::rotate(ViewMatrix, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	ViewMatrix       = glm::lookAt(
+								position,           // Camera is here
+								position+direction, // and looks here : at the same position, plus "direction"
+								glm::vec3(0,1,0)//up                  // Head is up (set to 0,-1,0 to look upside-down)
+						   );
 	lastTime 		 = currentTime;
 }	

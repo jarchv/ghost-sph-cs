@@ -12,18 +12,23 @@ int main() {
 	start(); //starts a 4.3 GL context+window
 
 	GLuint vao  			= create_vao();
-	GLuint shader_program	= create_program(	"../src/shaders/vertexShader.glsl", 
-												"../src/shaders/geometryShader.glsl",
-											 	"../src/shaders/fragmentShader.glsl");
+	GLuint shader_program	= create_program(	"../src/shaders/particle_vertexShader.glsl", 
+												"../src/shaders/particle_geometryShader.glsl",
+											 	"../src/shaders/particle_fragmentShader.glsl");
+	
+	GLuint object_program   = create_obj_program( "../src/shaders/obj_vertexShader.glsl", 
+												  "../src/shaders/obj_fragmentShader.glsl" 
+												);
 	if(!shader_program)
 		glfwTerminate();
 
-	GLuint acceleration_program  = create_accelerator("../src/shaders/computeShader.glsl");
+	GLuint acceleration_program  = create_accelerator("../src/shaders/particle_computeShader.glsl");
 	if(!acceleration_program)
 		glfwTerminate();
 	
-	glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+
 	
+
 	float dt = 1.0f/60.0f;
 
     glUseProgram(acceleration_program);
@@ -53,18 +58,83 @@ int main() {
 	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
 	printf("max local work group invocations %i\n", work_grp_inv);
 
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
+	//glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_ONE);
 
 
+    float obj_radio    = 2.0;
+    int   obj_angleres = 100;
+    int   nSphVtx      = 18;
+    int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
+    
+    std::vector<float> obj_color  = {1.0, 0.3, 0.3};
+    std::vector<float> obj_center = {0.0 , 0.0, 0.0};
+
+ 
+    
+
+    static GLfloat *g_objectvertex_buffer_data = new GLfloat[objectSizeRes];
+    static GLfloat *g_objectcolor_buffer_data  = new GLfloat[objectSizeRes];
+    static GLfloat *g_objectnormal_buffer_data = new GLfloat[objectSizeRes];
+
+    SphereBuffer(   obj_radio, 
+                    obj_angleres,
+                    nSphVtx,
+                    obj_color,
+                    g_objectvertex_buffer_data,
+                    g_objectcolor_buffer_data,
+                    obj_center);
+    
+    SetSphereNormals(   g_objectvertex_buffer_data, 
+                        g_objectnormal_buffer_data,
+                        obj_angleres);
+
+    GLuint objectbuffer;
+
+    glGenBuffers(1, &objectbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER,   objectbuffer);
+    glBufferData(GL_ARRAY_BUFFER,   objectSizeRes * sizeof(float),
+                                    g_objectvertex_buffer_data ,
+                                    GL_STATIC_DRAW); 
+
+    GLuint objectcolor_buffer;
+
+    glGenBuffers(1, &objectcolor_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, objectcolor_buffer);
+    glBufferData(GL_ARRAY_BUFFER,   objectSizeRes * sizeof(float),
+                                    g_objectcolor_buffer_data ,
+                                    GL_STATIC_DRAW); 
+
+    GLuint objectnormal_buffer;
+
+    glGenBuffers(1, &objectnormal_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, objectnormal_buffer);
+    glBufferData(GL_ARRAY_BUFFER, objectSizeRes * sizeof(float),
+                                         g_objectnormal_buffer_data ,
+                                         GL_STATIC_DRAW); 
+
+    glUseProgram(object_program);
+    GLuint TransparentID = glGetUniformLocation(object_program, "Transparent");
+    GLuint LightID       = glGetUniformLocation(object_program, "LightPosition_worldspace");
+    
+        
+    GLuint MatrixID      = glGetUniformLocation(object_program, "MVP");
+    GLuint ViewMatrixID  = glGetUniformLocation(object_program, "V");
+    GLuint ModelMatrixID = glGetUniformLocation(object_program, "M");  
+
+    glm::vec3 lightPos = glm::vec3(-10,5,-5);
+    glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+    glUniform1f(TransparentID,1.0);
 
     GLuint query;
     glGenQueries(1, &query);
+
 	while(!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
-		glBeginQuery(GL_TIME_ELAPSED, query);
+		//glClear(GL_COLOR_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glBeginQuery(GL_TIME_ELAPSED, query);
 		glUseProgram(acceleration_program);
 		//glUniform1f(0,deltaTime);
 		glDispatchCompute(num_fluid_p/256, 1, 1);
@@ -72,27 +142,82 @@ int main() {
 		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		// normal drawing pass
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shader_program);
 
 		//MVP matrix
 		computeMatricesFromInputs();
 		
-		glm::mat4 ProjectionMatrix  	= getProjectionMatrix();
-		glm::mat4 ViewMatrix 			= getViewMatrix();
+		//glm::mat4 ProjectionMatrix  	= getProjectionMatrix();
+		//glm::mat4 ViewMatrix 			= getViewMatrix();
 
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-		glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+		//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+		//glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
 		glBindVertexArray(vao);
-		glDrawArrays(GL_POINTS, 0, num_fluid_p/3);
+		//glDrawArrays(GL_POINTS, 0, num_fluid_p/3);
+        //glClear(GL_DEPTH_BUFFER_BIT);
+		glUseProgram(object_program);
+		computeMatricesFromInputs();
+		glm::mat4 ProjectionMatrix  = getProjectionMatrix();
+		glm::mat4 ViewMatrix 		= getViewMatrix();
+		glm::mat4 ModelMatrix       = glm::mat4(1.0);
+        glm::mat4 MVP               = ProjectionMatrix * ViewMatrix * ModelMatrix;   
+        
+        // Send our transformation to the currently bound shader, 
+		// in the "MVP" uniform
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+        glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+        glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, objectbuffer);
+        glVertexAttribPointer(
+            0,          // attibute 2, must match the layout in the shader
+            3,          // size
+            GL_FLOAT,   // type
+            GL_FALSE,   // normalizerd?
+            0,          // stride
+            (void*)0    // array buffer offset
+        );
+
+        // 2th attribute buffer : colors
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, objectcolor_buffer);
+        glVertexAttribPointer(
+            1,          // attibute 2, must match the layout in the shader
+            3,          // size
+            GL_FLOAT,   // type
+            GL_FALSE,   // normalizerd?
+            0,          // stride
+            (void*)0    // array buffer offset
+        );
+        
+        // 3th attribute buffer : colors
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, objectnormal_buffer);
+        glVertexAttribPointer(
+            2,          // attibute 2, must match the layout in the shader
+            3,          // size
+            GL_FLOAT,   // type
+            GL_FALSE,   // normalizerd?
+            0,          // stride
+            (void*)0    // array buffer offset
+        );
+        
+        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
 
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			glfwSetWindowShouldClose(window, 1);
 		}
-		glfwSwapBuffers(window);
 
+        glfwPollEvents();
+		glfwSwapBuffers(window);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         {
             GLuint64 result;
             glGetQueryObjectui64v(query, GL_QUERY_RESULT, &result);
@@ -102,6 +227,7 @@ int main() {
 
 	glDeleteProgram(shader_program);
 	glDeleteProgram(acceleration_program);
+	glDeleteProgram(object_program);
 
 	glDeleteVertexArrays(1, &vao);
 	stop();

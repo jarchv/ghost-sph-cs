@@ -37,13 +37,33 @@ bool start()
         return false;
     } 
 
-    glewExperimental = GL_TRUE;
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwPollEvents();
+    glfwSetCursorPos(window, WINDOW_W/2, WINDOW_H/2);
+
+    glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+
+    //glDisable(GL_CULL_FACE);
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+
+    // Accept fragment if it closer to the camera than the former one
+    //glDepthFunc(GL_LESS); 
+
+    // Enable blending
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //glewExperimental = GL_TRUE;
 
     const GLubyte *renderer = glGetString( GL_RENDERER );
     const GLubyte *version  = glGetString( GL_VERSION );
 
     printf( "Renderer: %s\n", renderer );
-    printf( "OpenGL version %s\n", version );
+    printf( "OpenGL version %s\n\n", version );
     
     return true;
 }
@@ -132,6 +152,6 @@ GLuint create_vao() {
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particles_vbo);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fluid_vbo);
-    
+
     return vao;
 }
