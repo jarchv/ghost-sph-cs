@@ -2,73 +2,44 @@
 
 struct Particle
 {
-    vec3 position;
+    vec4 velocity;
+    vec4 force;
+
+    float density0;
+    float density;
+    float pressure;
 };
 
 layout (local_size_x = 256) in;
-layout(std430, binding = 0) buffer pblock 
+
+layout(std430, binding = 0) buffer positionblock 
+{
+    vec4 p_positions[];
+};
+
+layout(std430, binding = 1) buffer fluidblock 
 { 
-    vec4 FluidParticles[]; 
+    Particle FluidParticles[]; 
 };
 
 layout (location = 0) uniform float dt;
 
+void compute_velocity(inout vec4 velocity, vec3 acceleration, float dt)
+{
+    velocity.xyz += acceleration * dt;
+}
+
+void compute_position(inout vec4 position, vec4 velocity, float dt)
+{
+    position.xyz += velocity.xyz * dt;
+}
 void main()
 {
-    int N = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
+    int N     = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index = int(gl_GlobalInvocationID);
 
-    //vec3 position = FluidParticles[index].xyz;
-    FluidParticles[index].xyz += vec3(dt, 0.0, 0.0);
+    vec3 gravity = vec3(0.0, 0.0, -9.8);
 
-    //for(int i = 0; i < N; i++)
-    //{
-    //    FluidParticles[index].xyz[i] += vec3(dt, 0.0, 0.0);;
-    //}
-    //FluidParticles[index].position.xyz += vec3(dt, 0.0, 0.0);
-    //vec3 position = FluidParticles.position[index].xyz;
-    //vec3 position = FluidParticles.position[index].xyz;
-    //ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-
-    //vec4 pixel =  particles(0.5, pixel_coords, dt);
-    //imageStore(img_output, pixel_coords, pixel);  
-
-    /*
-    vec4 pixel = vec4(0.8, 0.8, 0.8, 1.0);
-    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-
-    float max_x = 5.0;
-    float max_y = 5.0;
-
-    ivec2 dims = imageSize(img_output);
-
-    float x = (float(pixel_coords.x * 2 - dims.x) / dims.x);
-    float y = (float(pixel_coords.y * 2 - dims.y) / dims.y);
-
-    vec3 ray_o = vec3 (x * max_x, y * max_y, 0.0);
-    vec3 ray_d = vec3 (0.0, 0.0, -1.0);
-
-    vec3 sphere_c = vec3 (0.0, 0.0, -10.0);
-    float sphere_r = 1.0;
-
-    vec3 omc = ray_o - sphere_c;
-    float b = dot (ray_d, omc);
-    float c = dot (omc, omc) - sphere_r * sphere_r;
-
-    float bsqmc = b * b - c;
-
-    float t = 10000.0;
-
-    if (bsqmc >= 0.0)
-    {
-        float factor = (bsqmc + 0.2f)/(sphere_r * sphere_r);
-        
-        if (factor > 1)
-            factor = 1;
-
-        pixel = vec4 (1.0, 0.3, 0.3, 1.0)*factor;
-    }
-
-    imageStore (img_output, pixel_coords, pixel);
-    */
+    compute_velocity(FluidParticles[index].velocity, gravity, dt);
+    compute_position(p_positions[index], FluidParticles[index].velocity, dt);
 }

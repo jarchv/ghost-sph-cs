@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "../physics/sphere.h"
 
 GLFWwindow *window;
 
@@ -106,31 +107,31 @@ bool check_program_errors(GLuint program)
 }
 
 GLuint create_vao() {
-    std::vector<glm::vec4> FluidParticles(num_fluid_p);
-
-    for (int iprt = 0; iprt < num_fluid_p; iprt++)
-    {
-        //FluidParticles[iprt].position = glm::vec4(-5.0 + float(iprt*10.0),0.0,0.0, 1.0);
-        FluidParticles[iprt] = glm::gaussRand(glm::vec4(0,0,0,1), glm::vec4(1, 0.2, 1, 0));
-    }
-    
+    std::vector<glm::vec4> positionData(num_fluid_p);
+    Particle FluidParticles[num_fluid_p];
+    initializer(FluidParticles, positionData, num_fluid_p);
 
     GLuint vao;
     
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    GLuint positions_vbo;
-    glGenBuffers(1, &positions_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, positions_vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_fluid_p * sizeof(glm::vec4), &FluidParticles[0], GL_STATIC_DRAW);
+    GLuint particles_vbo;
+    glGenBuffers(1, &particles_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, particles_vbo);
+    glBufferData(GL_ARRAY_BUFFER, num_fluid_p * sizeof(glm::vec4), &positionData[0], GL_STATIC_DRAW);
 
+    GLuint fluid_vbo;
+    glGenBuffers(1, &fluid_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fluid_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, num_fluid_p * sizeof(struct Particle), &FluidParticles[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     GLintptr stride = 4 * sizeof(GLfloat);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, (char*)0 + 0*sizeof(GLfloat));
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positions_vbo);
-
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particles_vbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fluid_vbo);
+    
     return vao;
 }

@@ -22,6 +22,8 @@ int main() {
 	if(!acceleration_program)
 		glfwTerminate();
 	
+	glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+	
 	float dt = 1.0f/60.0f;
 
     glUseProgram(acceleration_program);
@@ -83,7 +85,7 @@ int main() {
 		glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
 		glBindVertexArray(vao);
-		glDrawArrays(GL_POINTS, 0, num_fluid_p);
+		glDrawArrays(GL_POINTS, 0, num_fluid_p/3);
 
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
@@ -94,7 +96,7 @@ int main() {
         {
             GLuint64 result;
             glGetQueryObjectui64v(query, GL_QUERY_RESULT, &result);
-            std::cout << result*1.e-6 << " ms/frame" << std::endl;
+            //std::cout << result*1.e-6 << " ms/frame" << std::endl;
         }
 	}
 
