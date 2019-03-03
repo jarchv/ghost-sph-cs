@@ -12,6 +12,6 @@ uniform vec3 LightPosition_worldspace;
 void main()
 {
  	gl_Position = vposition;
-
+ 	
  	Position_worldspace = (M * (vposition*500.f)).xyz;
 }

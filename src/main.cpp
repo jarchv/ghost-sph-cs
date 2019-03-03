@@ -67,7 +67,7 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 15.0;
+    float obj_radio    = 5.0;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
@@ -157,8 +157,8 @@ int main() {
 		
         glUseProgram(object_program);
         computeMatricesFromInputs();
-        glm::mat4 ProjectionMatrix      = getProjectionMatrix();
-        glm::mat4 ViewMatrix            = getViewMatrix();
+        glm::mat4 ProjectionMatrix  = getProjectionMatrix();
+        glm::mat4 ViewMatrix        = getViewMatrix();
 		glm::mat4 ModelMatrix       = glm::mat4(1.0);
         glm::mat4 MVP               = ProjectionMatrix * ViewMatrix * ModelMatrix;   
         
@@ -206,7 +206,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
         //glDisableVertexAttribArray(0);
         //glDisableVertexAttribArray(1);
@@ -224,7 +224,6 @@ int main() {
 
         //MVP matrix
         glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
-        
         glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
         glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 

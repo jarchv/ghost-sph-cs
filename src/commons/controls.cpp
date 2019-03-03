@@ -14,7 +14,7 @@ glm::mat4 getProjectionMatrix()
 }
 
 // Initial position : +Z
-glm::vec3 position = glm::vec3(0.0, 0.0, -70.0);
+glm::vec3 position = glm::vec3(0.0, -8.0, -30.0);
 
 // Initial angles : 
 
@@ -80,7 +80,7 @@ void computeMatricesFromInputs()
 	
 	float FoV = initialFov;
 	
-	ProjectionMatrix = glm::perspective(FoV, 4.0f/3.0f, 0.1f, 100.f);
+	ProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f/3.0f, 0.1f, 100.f);
 
 	//ViewMatrix 		 = glm::translate(glm::mat4(1.0f), position);
 	//ViewMatrix 		 = glm::rotate(ViewMatrix, 30.0f, glm::vec3(1.0f, 0.0f, 0.0f));
