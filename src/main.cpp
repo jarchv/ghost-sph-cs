@@ -67,13 +67,13 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 10.0;
+    float obj_radio    = 15.0;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
     
     std::vector<float> obj_color  = {1.0, 0.3, 0.3};
-    std::vector<float> obj_center = {0.0, 0.0, 0.0};
+    std::vector<float> obj_center = {0.0, 0.0, 20.0};
 
  
     
@@ -127,11 +127,17 @@ int main() {
     GLuint ViewMatrixID  = glGetUniformLocation(object_program, "V");
     GLuint ModelMatrixID = glGetUniformLocation(object_program, "M");  
 
-    glm::vec3 lightPos = glm::vec3(-10,5,-15);
+    glm::vec3 lightPos = glm::vec3(-10,5,0);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(TransparentID,1.0);
 
+    glUseProgram(shader_program);
+    GLuint LightID_p        = glGetUniformLocation(object_program, "LightPosition_worldspace");
+    GLuint MatrixID_p       = glGetUniformLocation(object_program, "MVP");
+    GLuint ViewMatrixID_p   = glGetUniformLocation(object_program, "V");
+    GLuint ModelMatrixID_p  = glGetUniformLocation(object_program, "M");  
 
+    glUniform3f(LightID_p, lightPos.x, lightPos.y, lightPos.z);
     /*
     * Time query:
     * ==========
@@ -144,36 +150,15 @@ int main() {
 	while(!glfwWindowShouldClose(window))
 	{
 		//glClear(GL_COLOR_BUFFER_BIT);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         nframe++;
         glBeginQuery(GL_TIME_ELAPSED, query);
-		glUseProgram(acceleration_program);
-		glUniform1f(1,num_fluid_p);
-        glUniform1i(2,nframe);
 
-		glDispatchCompute(num_fluid_p/256, 1, 1);
-		glEndQuery(GL_TIME_ELAPSED);
-		//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-		// normal drawing pass
-		glUseProgram(shader_program);
-
-		//MVP matrix
-		computeMatricesFromInputs();
-		glm::mat4 ProjectionMatrix  	= getProjectionMatrix();
-		glm::mat4 ViewMatrix 			= getViewMatrix();
-
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-		glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-
-		glBindVertexArray(vao);
-		glDrawArrays(GL_POINTS, 0, num_fluid_p);
-        //glClear(GL_DEPTH_BUFFER_BIT);
 		
         glUseProgram(object_program);
-		//computeMatricesFromInputs();
-		//glm::mat4 ProjectionMatrix  = getProjectionMatrix();
-		//glm::mat4 ViewMatrix 		= getViewMatrix();
+        computeMatricesFromInputs();
+        glm::mat4 ProjectionMatrix      = getProjectionMatrix();
+        glm::mat4 ViewMatrix            = getViewMatrix();
 		glm::mat4 ModelMatrix       = glm::mat4(1.0);
         glm::mat4 MVP               = ProjectionMatrix * ViewMatrix * ModelMatrix;   
         
@@ -221,12 +206,31 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
         //glDisableVertexAttribArray(0);
         //glDisableVertexAttribArray(1);
         //glDisableVertexAttribArray(2);
         
+        glUseProgram(acceleration_program);
+        glUniform1f(1,num_fluid_p);
+        glUniform1i(2,nframe);
+        glDispatchCompute(num_fluid_p/256, 1, 1);
+        glEndQuery(GL_TIME_ELAPSED);
+        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+        // normal drawing pass
+        glUseProgram(shader_program);
+
+        //MVP matrix
+        glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+        
+        glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+        glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+
+        glBindVertexArray(vao);
+        glDrawArrays(GL_POINTS, 0, num_fluid_p);
+
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			glfwSetWindowShouldClose(window, 1);

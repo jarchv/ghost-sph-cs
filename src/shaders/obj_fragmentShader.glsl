@@ -31,7 +31,7 @@ void main()
     // Material properties
     vec3 MaterialDiffuseColor  = fragmentColor;
     //vec3 MaterialDiffuseColor  = vec3(0.2,0.2,0.6);
-    vec3 MaterialAmbientColor  = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
+    vec3 MaterialAmbientColor  = vec3(0.5,0.5,0.5) * MaterialDiffuseColor;
     vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
     // Distance to the light

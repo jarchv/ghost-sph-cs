@@ -45,7 +45,7 @@ void main()
 
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index    = int(gl_GlobalInvocationID);
-    vec3 gravity = vec3(0.0, -9.8, 0.0);
+    vec3 gravity = vec3(0.0, -0.0098, 0.0);
 
     compute_velocity(p_velocity[index], gravity, dt);
     compute_position(p_position[index],p_velocity[index], dt);

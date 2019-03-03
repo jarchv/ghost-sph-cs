@@ -44,7 +44,7 @@ bool start()
     glfwPollEvents();
     glfwSetCursorPos(window, WINDOW_W/2, WINDOW_H/2);
 
-    glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+    glClearColor(0.8f, 0.8f, 0.8f, 0.8f);
 
     //glDisable(GL_CULL_FACE);
     // Enable depth test
@@ -56,7 +56,7 @@ bool start()
     // Enable blending
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
     //glewExperimental = GL_TRUE;
 
     const GLubyte *renderer = glGetString( GL_RENDERER );
