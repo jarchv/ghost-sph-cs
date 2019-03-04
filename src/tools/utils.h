@@ -20,6 +20,7 @@
 
 //const int num_fluid_p = 59 * 1024;
 const int num_fluid_p = 10*1024;
+
 bool start();
 void stop();
 
@@ -27,7 +28,7 @@ std::string check_read_shader(const char* shader_file_path);
 bool check_shader_errors(GLuint shader);
 bool check_program_errors(GLuint program);
 
-GLuint create_vao();
+GLuint create_ssbos(int ghost_angle_res, const int ghost_size);
 GLuint create_program();
 
 extern GLFWwindow *window;

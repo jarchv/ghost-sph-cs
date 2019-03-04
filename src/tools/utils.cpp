@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "../physics/sphere.h"
+#include "../physics/solid.h"
 
 GLFWwindow *window;
 
@@ -126,15 +127,23 @@ bool check_program_errors(GLuint program)
     }
 }
 
-GLuint create_vao() {
+GLuint create_ssbos(int ghost_angle_res, const int ghost_size) {
+
     std::vector<glm::vec4>  positionData(num_fluid_p);
     std::vector<glm::vec4>  velocityData(num_fluid_p);
     std::vector<glm::vec4>  forceData(num_fluid_p);
     std::vector<float>      densityData(num_fluid_p);
     std::vector<float>      pressureData(num_fluid_p);
 
+    glm::vec3 ghost_center = glm::vec3(0.0, 0.0, 20.0);
+
+
+    std::vector<glm::vec4>  ghost_positions(ghost_size);
+    std::vector<glm::vec4>  ghost_normals(ghost_size);
+
     initializer(positionData, velocityData, forceData, densityData, pressureData, num_fluid_p);   
 
+    build_ghost_particles(ghost_positions, ghost_normals, ghost_angle_res, 5.0, ghost_center);
     GLuint vao;
     
     glGenVertexArrays(1, &vao);
@@ -175,6 +184,18 @@ GLuint create_vao() {
                                                 &pressureData[0], GL_STATIC_DRAW);
 
 
+    GLuint ghost_positions_vbo;
+    glGenBuffers(1                          ,   &ghost_positions_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   ghost_positions_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   ghost_size * sizeof(glm::vec4), 
+                                                &ghost_positions[0], GL_STATIC_DRAW);
+
+    GLuint ghost_normals_vbo;
+    glGenBuffers(1                          ,   &ghost_normals_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   ghost_normals_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   ghost_size * sizeof(glm::vec4), 
+                                                &ghost_normals[0], GL_STATIC_DRAW);
+
     glEnableVertexAttribArray(0);
     GLintptr stride = 4 * sizeof(GLfloat);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, (char*)0 + 0*sizeof(GLfloat));
@@ -183,9 +204,11 @@ GLuint create_vao() {
                             velocities_vbo, 
                             force_vbo, 
                             density_vbo, 
-                            pressure_vbo};
+                            pressure_vbo,
+                            ghost_positions_vbo,
+                            ghost_normals_vbo};
 
-    glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 5, ssbos);
+    glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 7, ssbos);
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
     return vao;

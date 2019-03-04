@@ -37,9 +37,19 @@ layout(std430, binding = 4) buffer pressblock
     float p_pressure[];
 };
 
+layout(std430, binding = 5) buffer ghost_pblock
+{
+    vec4 ghost_p_position[];
+};
+
+layout(std430, binding = 6) buffer ghost_nblock
+{
+    vec4 ghost_p_normal[];
+};
+
 layout (location = 0) uniform float dt;
 layout (location = 1) uniform float num_p;
-layout (location = 2) uniform int   nframe;
+layout (location = 2) uniform int   ghost_size;
 
 void compute_velocity(inout vec4 velocity, vec3 force, float invMASS, float dt)
 {
@@ -79,6 +89,7 @@ void compute_density(float delta, float MASS, float h, float h_9, inout float de
 shared vec4  tmp[gl_WorkGroupSize.x];
 shared float den[gl_WorkGroupSize.x];
 shared float press[gl_WorkGroupSize.x];
+shared vec4 normal[gl_WorkGroupSize.x];
 void main()
 {
     float particle_radius   = 0.13f;
@@ -86,8 +97,8 @@ void main()
     float h_3               = smoothing_scale*smoothing_scale*smoothing_scale;
     float h_6               = h_3 * h_3;
     float h_9               = h_3 * h_6;
-    float K                 = 100000.0f;
-    float MASS              = 0.1f;
+    float K                 = 50000.0f;
+    float MASS              = 0.05f;
     float invMASS           = 1.0f/MASS;
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
@@ -109,7 +120,26 @@ void main()
 
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
-            float delta = length(position_src - tmp[i]);
+            float delta = length(position_src.xyz - tmp[i].xyz);
+
+            if (delta < smoothing_scale)
+            {
+                compute_density(delta, MASS, smoothing_scale, h_9, p_density[index_x]);
+            }
+        }
+        groupMemoryBarrier();
+        barrier();
+    }
+
+    for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
+    {
+        tmp[gl_LocalInvocationIndex] = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
+        groupMemoryBarrier();
+        barrier();
+
+        for (int i = 0; i < gl_WorkGroupSize.x; i++)
+        {
+            float delta = length(position_src.xyz - tmp[i].xyz);
 
             if (delta < smoothing_scale)
             {
@@ -132,7 +162,7 @@ void main()
 
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
-            float delta  = length(position_src - tmp[i]);
+            float delta  = length(position_src.xyz - tmp[i].xyz);
             if (delta < smoothing_scale)
             {
                 float density_src = p_density[index_x];
@@ -149,19 +179,62 @@ void main()
         barrier();
     }
 
-    /*
-    for (int ipart = 0; ipart < num_p; ipart++)
+    for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
     {
-        float delta = length(position_src - p_position[ipart]);
+        tmp[gl_LocalInvocationIndex]    = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
+        den[gl_LocalInvocationIndex]    = p_density[index_x];
+        press[gl_LocalInvocationIndex]  = p_pressure[index_x];
+        normal[gl_LocalInvocationIndex] = ghost_p_normal[tile + int(gl_LocalInvocationIndex)];
+
+        groupMemoryBarrier();
+        barrier();
+
+        for (int i = 0; i < gl_WorkGroupSize.x; i++)
+        {
+            float delta  = length(position_src.xyz - tmp[i].xyz);
+            if (delta < smoothing_scale)
+            {
+                float density_src = p_density[index_x];
+                float density_ngh = den[i];
+
+                vec4  deltav = position_src - tmp[i]; 
+                float pressure_factor = - MASS * MASS/(density_src*density_ngh);
+
+                pressure_factor *= 0.5*(p_pressure[index_x] + press[i]);
+                p_force[index_x] += 0.01 * pressure_factor * vec4(KernelGrad(deltav.xyz, smoothing_scale, h_6),0.0);
+            }
+        }
+        groupMemoryBarrier();
+        barrier();
+    }
+
+    for (int i = 0; i < ghost_size; i++)
+    {
+        float delta  = length(position_src.xyz - ghost_p_position[i].xyz);
 
         if (delta < smoothing_scale)
         {
-            vec4 position_ng = p_position[ipart];
-            compute_density(delta, MASS, smoothing_scale, h_9, p_density[index_x]);
+
+            vec4 deltav         = position_src - ghost_p_position[i]; 
+            float normal_dist   = dot(deltav.xyz, ghost_p_normal[i].xyz);
+
+            if (normal_dist < 0) //inner
+            {
+                p_position[index_x] -= vec4(ghost_p_normal[i].xyz * normal_dist*0.5, 0.0);
+                break;
+            }
         }
     }
-    */
-    
+
     compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
-    compute_position(p_position[index_x], p_velocity[index_x], dt);       
+    compute_position(p_position[index_x], p_velocity[index_x], dt);     
+
+
+    // Show Ghost Particles
+    /*
+    for (int i = 0; i < ghost_size; i++)
+    {
+        p_position[i] = vec4(ghost_p_position[i].xyz, 1.0);
+    }  
+    */
 }

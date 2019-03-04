@@ -8,10 +8,14 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
+int ghost_angle_res    = 80;
+const int ghost_size   =  ghost_angle_res * ghost_angle_res;
+
 int main() {
 	start(); //starts a 4.3 GL context+window
 
-	GLuint vao  			= create_vao();
+	GLuint vao  			= create_ssbos(ghost_angle_res, ghost_size);
+
 	GLuint shader_program	= create_program(	"../src/shaders/particle_vertexShader.glsl", 
 												"../src/shaders/particle_geometryShader.glsl",
 											 	"../src/shaders/particle_fragmentShader.glsl");
@@ -29,7 +33,7 @@ int main() {
 
 	
 
-	float dt = 1.0f/60.0f;
+	float dt = 2.0f/600.0f;
 
     //float dt = 0.0f;
     glUseProgram(acceleration_program);
@@ -213,7 +217,7 @@ int main() {
         
         glUseProgram(acceleration_program);
         glUniform1f(1,num_fluid_p);
-        glUniform1i(2,nframe);
+        glUniform1i(2,ghost_size);
         glDispatchCompute(num_fluid_p/32, 1, 1);
         glEndQuery(GL_TIME_ELAPSED);
         //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
