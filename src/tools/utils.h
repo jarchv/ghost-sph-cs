@@ -19,7 +19,7 @@
 #define WINDOW_H 480
 
 //const int num_fluid_p = 59 * 1024;
-const int num_fluid_p = 50*1024;
+const int num_fluid_p = 10*1024;
 bool start();
 void stop();
 

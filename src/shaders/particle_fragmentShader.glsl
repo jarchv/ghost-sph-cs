@@ -20,7 +20,7 @@ void main()
 	
 	float distance = length( LightPosition_worldspace - Position_worldspace );
 
-	if (d > 0.5)
+	if (d > 0.9)
 		discard;
 	else
 	{

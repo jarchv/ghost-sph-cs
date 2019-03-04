@@ -31,6 +31,7 @@ int main() {
 
 	float dt = 1.0f/60.0f;
 
+    //float dt = 0.0f;
     glUseProgram(acceleration_program);
     glUniform1f(0, dt);
 
@@ -74,8 +75,6 @@ int main() {
     
     std::vector<float> obj_color  = {1.0, 0.3, 0.3};
     std::vector<float> obj_center = {0.0, 0.0, 20.0};
-
- 
     
 
     static GLfloat *g_objectvertex_buffer_data = new GLfloat[objectSizeRes];
@@ -215,7 +214,7 @@ int main() {
         glUseProgram(acceleration_program);
         glUniform1f(1,num_fluid_p);
         glUniform1i(2,nframe);
-        glDispatchCompute(num_fluid_p/256, 1, 1);
+        glDispatchCompute(num_fluid_p/32, 1, 1);
         glEndQuery(GL_TIME_ELAPSED);
         //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 

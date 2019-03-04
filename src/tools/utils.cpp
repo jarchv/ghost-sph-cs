@@ -141,28 +141,52 @@ GLuint create_vao() {
     glBindVertexArray(vao);
 
     GLuint particles_vbo;
-    glGenBuffers(1, &particles_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, particles_vbo);
-    glBufferData(GL_ARRAY_BUFFER, num_fluid_p * sizeof(glm::vec4), &positionData[0], GL_STATIC_DRAW);
+    glGenBuffers(1              ,   &particles_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER,   particles_vbo);
+    glBufferData(GL_ARRAY_BUFFER,   num_fluid_p * sizeof(glm::vec4), 
+                                    &positionData[0], 
+                                    GL_STATIC_DRAW);
 
     GLuint velocities_vbo;
-    glGenBuffers(1, &velocities_vbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocities_vbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, num_fluid_p * sizeof(glm::vec4), &velocityData[0], GL_STATIC_DRAW);
+    glGenBuffers(1                          ,   &velocities_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   velocities_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   num_fluid_p * sizeof(glm::vec4), 
+                                                &velocityData[0], 
+                                                GL_STATIC_DRAW);
 
-    
-    
+    GLuint force_vbo;
+    glGenBuffers(1                          ,   &force_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   force_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   num_fluid_p * sizeof(glm::vec4), 
+                                                &forceData[0], 
+                                                GL_STATIC_DRAW);
+
+    GLuint density_vbo;
+    glGenBuffers(1                          ,   &density_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   density_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   num_fluid_p * sizeof(float), 
+                                                &densityData[0], 
+                                                GL_STATIC_DRAW);
+
+    GLuint pressure_vbo;
+    glGenBuffers(1                          ,   &pressure_vbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   pressure_vbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   num_fluid_p * sizeof(float), 
+                                                &pressureData[0], GL_STATIC_DRAW);
+
 
     glEnableVertexAttribArray(0);
-
     GLintptr stride = 4 * sizeof(GLfloat);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, (char*)0 + 0*sizeof(GLfloat));
 
-    const GLuint ssbos[] = {particles_vbo, velocities_vbo};
-    glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 2, ssbos);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particles_vbo);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fluid_ssbo);
+    const GLuint ssbos[] = {particles_vbo, 
+                            velocities_vbo, 
+                            force_vbo, 
+                            density_vbo, 
+                            pressure_vbo};
 
+    glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 5, ssbos);
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
     return vao;
 }
