@@ -29,8 +29,8 @@ void initializer(   std::vector<glm::vec4>& positions,
                     std::vector<float>& pressure,
                     int n)
 {
-	glm::vec3 parallelepiped 	= glm::vec3(4.0,10.0,4.0);
-	glm::vec3 center			= glm::vec3(0.0,10.0,20.0);
+	glm::vec3 parallelepiped 	= glm::vec3(2.0,20.0,2.0);
+	glm::vec3 center			= glm::vec3(0.0,15.0,20.0);
 
 	set_positions(positions, parallelepiped, center, n);
 

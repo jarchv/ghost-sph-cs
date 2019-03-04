@@ -33,7 +33,7 @@ int main() {
 
 	
 
-	float dt = 2.0f/600.0f;
+	float dt = 5.0f/600.0f;
 
     //float dt = 0.0f;
     glUseProgram(acceleration_program);
