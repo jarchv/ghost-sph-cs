@@ -25,13 +25,13 @@ void main()
 {
     //color = vec3(0.7,0.0,0);
     vec3 LightColor = vec3(1.0f,1.0f,1.0f);
-    float LightPower = 80.0f;
+    float LightPower = 1000.0f;
     
     //std::cout << "v_v4FillColor " << v_v4FillColor.x << std::endl;
     // Material properties
     vec3 MaterialDiffuseColor  = fragmentColor;
     //vec3 MaterialDiffuseColor  = vec3(0.2,0.2,0.6);
-    vec3 MaterialAmbientColor  = vec3(0.5,0.5,0.5) * MaterialDiffuseColor;
+    vec3 MaterialAmbientColor  = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
     vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
 
     // Distance to the light

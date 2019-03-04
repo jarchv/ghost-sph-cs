@@ -66,7 +66,8 @@ int main() {
 	//glDisable(GL_DEPTH_TEST);
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_ONE, GL_ONE);
-
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     /*
     * Solid Parameters
     * ================
@@ -130,15 +131,13 @@ int main() {
     GLuint ViewMatrixID  = glGetUniformLocation(object_program, "V");
     GLuint ModelMatrixID = glGetUniformLocation(object_program, "M");  
 
-    glm::vec3 lightPos = glm::vec3(-10,5,0);
+    glm::vec3 lightPos = glm::vec3(-3,15,-20);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(TransparentID,1.0);
 
     glUseProgram(shader_program);
-    GLuint LightID_p        = glGetUniformLocation(object_program, "LightPosition_worldspace");
-    GLuint MatrixID_p       = glGetUniformLocation(object_program, "MVP");
-    GLuint ViewMatrixID_p   = glGetUniformLocation(object_program, "V");
-    GLuint ModelMatrixID_p  = glGetUniformLocation(object_program, "M");  
+    GLuint LightID_p        = glGetUniformLocation(shader_program, "LightPosition_worldspace_p");
+    GLuint ModelMatrixID_p  = glGetUniformLocation(shader_program, "M_p");  
 
     glUniform3f(LightID_p, lightPos.x, lightPos.y, lightPos.z);
     /*
@@ -226,7 +225,7 @@ int main() {
         glUseProgram(shader_program);
 
         //MVP matrix
-        glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+        glUniformMatrix4fv(ModelMatrixID_p, 1, GL_FALSE, &ModelMatrix[0][0]);
         glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
         glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 
