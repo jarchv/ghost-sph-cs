@@ -104,13 +104,13 @@ shared vec4 normal[gl_WorkGroupSize.x];
 void main()
 {
     float particle_radius   = 0.13f;
-    float smoothing_scale   = particle_radius * 6;
+    float smoothing_scale   = particle_radius * 10;
     float h_3               = smoothing_scale*smoothing_scale*smoothing_scale;
     float h_6               = h_3 * h_3;
     float h_9               = h_3 * h_6;
-    float K                 = 0.100f;
+    float K                 = 10.0f;
     float MU                = 1000000.0;
-    float MASS              = 0.01f;
+    float MASS              = 0.05f;
     float invMASS           = 1.0f/MASS;
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
@@ -186,12 +186,12 @@ void main()
                 float pressure_factor = - MASS * MASS/(density_src*density_ngh);
 
                 pressure_factor *= 0.5*(p_pressure[index_x] + press[i]);
-                p_force[index_x] += pressure_factor * vec4(KernelGrad(deltav.xyz, smoothing_scale*2, h_6),0.0);
+                p_force[index_x] += pressure_factor * vec4(KernelGrad(deltav.xyz, smoothing_scale, h_6),0.0);
 
-                vec4 viscocity_factor = vec4(1.0,1.0,1.0,0.0) * MASS * MASS / (density_src * density_ngh);
+                float viscocity_C = MASS * MASS / (density_src * density_ngh);
+                vec4 viscocity_factor = viscocity_C * MU * (vel[i] - p_velocity[index_x]);
 
-                viscocity_factor *= MU * (vel[i] - p_velocity[index_x]);
-                p_force[index_x] += viscocity_factor * KernelLaplacian(deltav.xyz, smoothing_scale*2, h_6);
+                p_force[index_x] += viscocity_factor * KernelLaplacian(deltav.xyz, smoothing_scale, h_6);
 
             }
         }
@@ -209,6 +209,7 @@ void main()
         groupMemoryBarrier();
         barrier();
 
+
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
             float delta  = length(position_src.xyz - tmp[i].xyz);
@@ -220,18 +221,25 @@ void main()
                 float pressure_factor = - MASS * MASS/(density_src*density_src);
 
                 pressure_factor *= p_pressure[index_x];
-                //vec4 v_ghost = vec4(0.0,0.0,0.0,0.0);
-                p_force[index_x] += 0.0 * pressure_factor * vec4(KernelGrad(deltav.xyz, smoothing_scale, h_6),0.0);
+                p_force[index_x] += pressure_factor * vec4(KernelGrad(deltav.xyz, smoothing_scale, h_6),0.0);
 
 
                 float v_normal_solid = dot(velocity_src.xyz, normal[i].xyz);
                 vec4 v_ghost = vec4(p_velocity[index_x].xyz - v_normal_solid * normal[i].xyz, 0.0);
 
-                vec4 viscocity_factor = vec4(1.0,1.0,1.0,0.0) * MASS * MASS / (density_src * density_src);
-                viscocity_factor     *= MU * (v_ghost - p_velocity[index_x]);
+                float viscocity_C     = MASS * MASS / (density_src * density_src);
+                
+                vec4 viscocity_factor = viscocity_C * MU * (v_ghost - p_velocity[index_x]);
 
-                vec4 temp = viscocity_factor * KernelLaplacian(deltav.xyz, smoothing_scale, h_6);
-                p_force[index_x] += temp;//viscocity_factor * KernelLaplacian(deltav, smoothing_scale, h_6);
+                vec4 voscocity_force  = viscocity_factor * KernelLaplacian(deltav.xyz, smoothing_scale, h_6);
+
+                float vf_mod          = length(voscocity_force);
+                vec4  vf_u            = voscocity_force/vf_mod;
+                
+                vec4 vf_force         = voscocity_force;
+                //if (vf_mod > 1)
+                //    vec4 vf_force = 1.0f * vf_u;
+                p_force[index_x] += voscocity_force;
 
             }
         }
@@ -251,7 +259,7 @@ void main()
 
             if (normal_dist < 0) //inner
             {
-                p_position[index_x] -= vec4(ghost_p_normal[i].xyz * normal_dist*0.5, 0.0);
+                p_position[index_x] -= vec4(ghost_p_normal[i].xyz * normal_dist, 0.0);
                 break;
             }
         }

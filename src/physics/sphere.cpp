@@ -1,23 +1,29 @@
 #include "../tools/utils.h"
 #include "sphere.h"
 
-void set_positions(std::vector<glm::vec4>& positions, glm::vec3 parallelepiped, glm::vec3 center, int n)
+void set_positions(std::vector<glm::vec4>& positions, glm::vec2 rh, glm::vec3 center, int n)
 {
-	float epsilon_x;
-	float epsilon_y;
+	//float epsilon_x;
+	//float epsilon_y;
 	float epsilon_z;
 
 	float alpha = 1.0;
-
+    float epsilon_theta;
+    float epsilon_radius;
 	for (int i = 0; i < n; i++)
 	{	
-        epsilon_x = ((float)(rand()%1000) / 1000.0);
-        epsilon_y = ((float)(rand()%1000) / 1000.0);
+        //epsilon_x = ((float)(rand()%1000) / 1000.0);
+        //epsilon_y = ((float)(rand()%1000) / 1000.0);
         epsilon_z = ((float)(rand()%1000) / 1000.0);
 
-        positions[i].x = epsilon_x * parallelepiped.x - parallelepiped.x/2.0 + center.x;
-		positions[i].y = epsilon_y * parallelepiped.y - parallelepiped.y/2.0 + center.y;// 		= glm::gaussRand(glm::vec4(0,0,0,1), glm::vec4(1, 0.2, 1, 0));
-		positions[i].z = epsilon_z * parallelepiped.z - parallelepiped.z/2.0 + center.z;
+        epsilon_theta  = ((float)(rand()%1000) / 1000.0);
+        epsilon_radius = ((float)(rand()%1000) / 1000.0);
+
+        positions[i].x = epsilon_radius * rh.x * cos(2 * 3.14159 * epsilon_theta) + center.x;
+        positions[i].z = epsilon_radius * rh.x * sin(2 * 3.14159 * epsilon_theta) + center.z;
+        //positions[i].x = epsilon_x * parallelepiped.x - parallelepiped.x/2.0 + center.x;
+		//positions[i].y = epsilon_y * parallelepiped.y - parallelepiped.y/2.0 + center.y;// 		= glm::gaussRand(glm::vec4(0,0,0,1), glm::vec4(1, 0.2, 1, 0));
+		positions[i].y = epsilon_z * rh.y - rh.y/2.0 + center.y;
 		positions[i].w = alpha;
 	}
 }
@@ -29,8 +35,8 @@ void initializer(   std::vector<glm::vec4>& positions,
                     std::vector<float>& pressure,
                     int n)
 {
-	glm::vec3 parallelepiped 	= glm::vec3(2.0,20.0,2.0);
-	glm::vec3 center			= glm::vec3(0.0,15.0,20.0);
+	glm::vec2 parallelepiped 	= glm::vec2(1.0,10.0);
+	glm::vec3 center			= glm::vec3(0.0,12.0,20.0);
 
 	set_positions(positions, parallelepiped, center, n);
 

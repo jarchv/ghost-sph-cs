@@ -21,14 +21,14 @@ void build_ghost_particles(	std::vector<glm::vec4>& ghost_pos,
 	{
 		for (int j = 0; j < angle_res; j++) 
 		{
-			posZ = cos(PI_ - (theta*j))*radius            + objcenter.z;;
-			posY = sin(PI_ - (theta*j))*sin(phi*i)*radius + objcenter.y;;
-			posX = sin(PI_ - (theta*j))*cos(phi*i)*radius + objcenter.x;;
+			posY = cos(PI_ - (theta*j))*radius            + objcenter.y;
+			posZ = sin(PI_ - (theta*j))*sin(phi*i)*radius + objcenter.z;
+			posX = sin(PI_ - (theta*j))*cos(phi*i)*radius + objcenter.x;
 
             ghost_pos[i*angle_res + j] = glm::vec4(posX, posY, posZ, 0.0);
-            ghost_nom[i*angle_res + j] = glm::vec4(	sin(PI_ - (theta*j))*cos(phi*i)*radius, 
-                                                	sin(PI_ - (theta*j))*sin(phi*i)*radius, 
-                                                	cos(PI_ - (theta*j))*radius,
+            ghost_nom[i*angle_res + j] = glm::vec4(	sin(PI_ - (theta*j))*cos(phi*i), 
+                                                	cos(PI_ - (theta*j)), 
+                                                	sin(PI_ - (theta*j))*sin(phi*i),
                                                 	0.0);  
         }
     }
