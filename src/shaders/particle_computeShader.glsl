@@ -1,5 +1,16 @@
 #version 430     
 
+float pradius   = 0.13f;
+float h         = pradius * 6; //h
+float h_3       = h*h*h;
+float h_6       = h_3 * h_3;
+float h_9       = h_3 * h_6;
+float K         = 0.1f;
+float mu        = 0.001f;
+float MASS      = 0.02f;
+float invMASS   = 1.0f/MASS;
+float eps   = 1e-12;
+
 struct Particle
 {
     vec4 v;
@@ -44,7 +55,7 @@ layout(std430, binding = 5) buffer ghost_pblock
 
 layout(std430, binding = 6) buffer ghost_nblock
 {
-    vec4 ghost_p_normal[];
+    vec4 ghost_p_ghost_normal[];
 };
 
 layout (location = 0) uniform float dt;
@@ -63,8 +74,8 @@ void compute_position(inout vec4 position, vec4 velocity, float dt)
 
 float W_poly(float delta, float h, float h_9)
 {
-    float factor = (h * h  - delta * delta);
-    factor = factor * factor * factor;
+    float dif    = (h * h  - delta * delta);
+    float factor = dif * dif * dif;
 
     return factor * 315.0 /(64.0 * h_9 * 3.14159);
 }
@@ -91,34 +102,48 @@ void compute_density(float delta, float MASS, float h, float h_9, inout float de
     density += MASS * W_poly(delta, h, h_9);
 }
 
+vec4 pressure_force(float Pi, float Pj, float rhoi, float rhoj, vec4 deltav)
+{
+    float press_factor = - MASS * MASS;
+    press_factor      *= (Pi/(rhoi * rhoi + eps) + Pj/(rhoj * rhoj + eps));
+
+    return  vec4(gradW_press(deltav.xyz, h, h_6),0.0) * press_factor;
+}
+
+void XSPH(  inout vec4 vi, 
+            vec4 vj, 
+            float rhoj, 
+            float delta,
+            float mu_var)
+{
+    vi += mu_var * (MASS / rhoj) * (vj - vi) * lapW_visco(delta, h, h_6);
+}
+
 shared vec4  tmp[gl_WorkGroupSize.x];
 shared vec4  vel[gl_WorkGroupSize.x];
 shared float den[gl_WorkGroupSize.x];
 shared float press[gl_WorkGroupSize.x];
-shared vec4 normal[gl_WorkGroupSize.x];
+shared vec4 ghost_normal[gl_WorkGroupSize.x];
 void main()
 {
-    float particle_radius   = 0.13f;
-    float smoothing_scale   = particle_radius * 10;
-    float h_3               = smoothing_scale*smoothing_scale*smoothing_scale;
-    float h_6               = h_3 * h_3;
-    float h_9               = h_3 * h_6;
-    float K                 = 10.0f;
-    float MU                = 100.0;
-    float MASS              = 0.05f;
-    float invMASS           = 1.0f/MASS;
+
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
     vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0);
 
 
-    p_force[index_x] = gravity * MASS;
+    p_force[index_x]   = gravity * MASS;
+    p_density[index_x] = 0.0;
+
+    vec4 position_src  = p_position[index_x];
+
+    float delta;
 
 
-    vec4 position_src = p_position[index_x];
-    vec4 velocity_src = p_velocity[index_x];
-    float density_src = p_density[index_x];
-
+    /*
+    *  Compute for nearest liquid particles
+    *  ===================================
+    */  
 
     for (int tile = 0; tile < num_p; tile+=int(gl_WorkGroupSize.x))
     {
@@ -128,67 +153,129 @@ void main()
 
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
-            float delta = length(position_src.xyz - tmp[i].xyz);
+            delta = length(position_src.xyz - tmp[i].xyz);
 
-            if (delta < smoothing_scale)
+            if (delta < h)
             {
-                compute_density(delta, MASS, smoothing_scale, h_9, p_density[index_x]);
+                /*
+                * Density Accumulator
+                * ===================
+                */
+                compute_density(delta, MASS, h, h_9, p_density[index_x]);
             }
         }
         groupMemoryBarrier();
         barrier();
     }
 
-    p_pressure[index_x] = K * (pow(p_density[index_x]/1000.0, 7.0) - 1.0);
-    
-    for (int tile = 0; tile < num_p; tile+=int(gl_WorkGroupSize.x))
-    {
-        tmp[gl_LocalInvocationIndex]   = p_position[tile + int(gl_LocalInvocationIndex)];
-        den[gl_LocalInvocationIndex]   = p_density[tile + int(gl_LocalInvocationIndex)];
-        press[gl_LocalInvocationIndex] = p_pressure[tile + int(gl_LocalInvocationIndex)];
-        vel[gl_LocalInvocationIndex]   = p_velocity[tile + int(gl_LocalInvocationIndex)];
-
-        groupMemoryBarrier();
-        barrier();
-
-        for (int i = 0; i < gl_WorkGroupSize.x; i++)
-        {
-            float delta  = length(position_src.xyz - tmp[i].xyz);
-            if (delta < smoothing_scale)
-            {
-                float density_ngh = den[i];
-                vec4  deltav = position_src - tmp[i]; 
-                
-                float pressure_factor = - MASS * MASS/(density_src*density_ngh);
-
-                pressure_factor *= 0.5*(p_pressure[index_x] + press[i]);
-                p_force[index_x] += pressure_factor * vec4(gradW_press(deltav.xyz, smoothing_scale, h_6),0.0);
-
-            }
-        }
-        groupMemoryBarrier();
-        barrier();
-    }
+    /*
+    *  Compute for nearest solid particles
+    *  ===================================
+    */  
 
     for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
     {
-        tmp[gl_LocalInvocationIndex]    = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
-        normal[gl_LocalInvocationIndex] = ghost_p_normal[tile + int(gl_LocalInvocationIndex)];
+        tmp[gl_LocalInvocationIndex] = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
+        groupMemoryBarrier();
+        barrier();
 
+        for (int i = 0; i < gl_WorkGroupSize.x; i++)
+        {
+            delta = length(position_src.xyz - tmp[i].xyz);
+
+            if (delta < h)
+            {
+                /*
+                * Density Accumulator
+                * ===================
+                */
+                compute_density(delta, MASS*5, h, h_9, p_density[index_x]);
+            }
+        }
+        groupMemoryBarrier();
+        barrier();
+    }
+
+    float density_src = p_density[index_x];
+    p_pressure[index_x] = K * (pow(density_src/1000.0, 7.0) - 1.0);
+    
+    
+
+    
+    float density_ngh;
+    float press_factor;
+    vec4  deltav;
+
+    for (int tile = 0; tile < num_p; tile+=int(gl_WorkGroupSize.x))
+    {
+        tmp[gl_LocalInvocationIndex]   = p_position[tile + int(gl_LocalInvocationIndex)];
+        den[gl_LocalInvocationIndex]   = p_density[tile  + int(gl_LocalInvocationIndex)];
+        press[gl_LocalInvocationIndex] = p_pressure[tile + int(gl_LocalInvocationIndex)];
+
+        groupMemoryBarrier();
+        barrier();
+
+        for (int i = 0; i < gl_WorkGroupSize.x; i++)
+        {
+            delta  = length(position_src.xyz - tmp[i].xyz);
+            if (delta < h)
+            {
+                density_ngh  = den[i];
+                deltav       = position_src - tmp[i]; 
+
+                /*
+                * Compute ṕressure force
+                * ======================
+                */
+
+                vec4 pforce  = pressure_force(  p_pressure[index_x],
+                                                press[i],
+                                                density_src,
+                                                density_ngh,
+                                                deltav);
+                p_force[index_x] += pforce;
+                //press_factor = - MASS * MASS;
+
+                //press_factor      *= (p_pressure[index_x]/(density_src * density_src + eps) + press[i]/(eps + density_ngh*density_ngh));
+                //p_force[index_x]  += press_factor * vec4(gradW_press(deltav.xyz, h, h_6),0.0);
+
+            }
+        }
+        groupMemoryBarrier();
+        barrier();
+    }
+    
+    for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
+    {
+        tmp[gl_LocalInvocationIndex]    = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
         groupMemoryBarrier();
         barrier();
 
 
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
-            float delta  = length(position_src.xyz - tmp[i].xyz);
-            if (delta < smoothing_scale)
+            
+            delta  = length(position_src.xyz - tmp[i].xyz);
+            if (delta < h)
             {
-                vec4  deltav = position_src - tmp[i]; 
-                float pressure_factor = - MASS * MASS/(density_src*density_src);
+                deltav       = position_src - tmp[i]; 
+                
+                /*
+                * Compute ṕressure force
+                * ======================
+                */
+                
+                vec4 pforce  = pressure_force(  p_pressure[index_x],
+                                                p_pressure[index_x],
+                                                density_src,
+                                                density_src,
+                                                deltav);
+                p_force[index_x]    += pforce;
+                
+                //press_factor = - MASS * MASS;
 
-                pressure_factor *= p_pressure[index_x];
-                p_force[index_x] += pressure_factor * vec4(gradW_press(deltav.xyz, smoothing_scale, h_6),0.0);
+                //press_factor     *= 2 * (p_pressure[index_x]/(density_src * density_src + eps));
+                //p_force[index_x] += press_factor * vec4(gradW_press(deltav.xyz, h, h_6),0.0);
 
             }
         }
@@ -198,12 +285,21 @@ void main()
     
     compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
 
-    p_force[index_x] = vec4(0.0,0.0,0.0,0.0);
+    vec4 velocity_src  = p_velocity[index_x];
+    float v_ghost_normal_solid;
+
+
+
     
-    for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
+    /*
+    *  Compute for nearest liquid particles
+    *  ===================================
+    */  
+
+    for (int tile = 0; tile < num_p; tile+=int(gl_WorkGroupSize.x))
     {
-        tmp[gl_LocalInvocationIndex]    = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
-        normal[gl_LocalInvocationIndex] = ghost_p_normal[tile + int(gl_LocalInvocationIndex)];
+        tmp[gl_LocalInvocationIndex] = p_position[tile + int(gl_LocalInvocationIndex)];
+        vel[gl_LocalInvocationIndex] = p_velocity[tile + int(gl_LocalInvocationIndex)];
 
         groupMemoryBarrier();
         barrier();
@@ -211,46 +307,88 @@ void main()
 
         for (int i = 0; i < gl_WorkGroupSize.x; i++)
         {
-            float delta  = length(position_src.xyz - tmp[i].xyz);
-            if (delta < smoothing_scale)
+            delta  = length(position_src.xyz - tmp[i].xyz);
+            if (delta < h)
             {
-                float v_normal_solid = dot(velocity_src.xyz, normal[i].xyz);
-                vec4 v_ghost         = vec4(p_velocity[index_x].xyz - v_normal_solid * normal[i].xyz, 0.0);
-
-                float viscocity_C     = MASS * MASS / density_src;
-                
-                vec4 viscocity_factor = viscocity_C * MU * (v_ghost - p_velocity[index_x]);
-                vec4 voscocity_force  = viscocity_factor * lapW_visco(delta, smoothing_scale, h_6);
-
-                p_force[index_x] += voscocity_force;
+                /*
+                *  Artificial Viscosity
+                *  ====================
+                */
+                XSPH(p_velocity[index_x], vel[i], density_src, delta, mu);            
             }
         }
         groupMemoryBarrier();
         barrier();
     }
 
+    /*
+    *  Compute for nearest solid particles
+    *  ===================================
+    */
 
+    vec4  Vghost;
+    float Vliquid_N;
+
+    for (int tile = 0; tile < ghost_size; tile+=int(gl_WorkGroupSize.x))
+    {
+        tmp[gl_LocalInvocationIndex]          = ghost_p_position[tile + int(gl_LocalInvocationIndex)];
+        ghost_normal[gl_LocalInvocationIndex] = ghost_p_ghost_normal[tile + int(gl_LocalInvocationIndex)];
+
+        groupMemoryBarrier();
+        barrier();
+
+
+        for (int i = 0; i < gl_WorkGroupSize.x; i++)
+        {
+            delta  = length(position_src.xyz - tmp[i].xyz);
+            if (delta < h)
+            {
+                /*
+                *  Artificial Viscosity
+                *  ====================
+                *
+                * Vghost = Vsolid_N + Vliquid_T 
+                * Vghost = Vliquid_T (Vsolid = 0)
+                *
+                */
+
+                Vliquid_N = dot(velocity_src.xyz, ghost_normal[i].xyz);
+                Vghost    = vec4(velocity_src.xyz - Vliquid_N * ghost_normal[i].xyz, 0.0);
+
+                XSPH(p_velocity[index_x], Vghost, density_src, delta, mu *30.0);            
+            }
+        }
+        groupMemoryBarrier();
+        barrier();
+    }
+
+    
 
     compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
     compute_position(p_position[index_x], p_velocity[index_x], dt);     
 
+    /*
+    * Projection of points to the surface
+    * ===================================
+    */
     for (int i = 0; i < ghost_size; i++)
     {
         float delta  = length(position_src.xyz - ghost_p_position[i].xyz);
 
-        if (delta < smoothing_scale)
+        if (delta < h)
         {
 
-            vec4 deltav         = position_src - ghost_p_position[i]; 
-            float normal_dist   = dot(deltav.xyz, ghost_p_normal[i].xyz);
+            vec4 deltav             = position_src - ghost_p_position[i]; 
+            float ghost_normal_dist = dot(deltav.xyz, ghost_p_ghost_normal[i].xyz);
 
-            if (normal_dist < 0) //inner
+            if (ghost_normal_dist < 0) //inner
             {
-                p_position[index_x] -= vec4(ghost_p_normal[i].xyz * normal_dist, 0.0);
+                p_position[index_x] -= vec4(ghost_p_ghost_normal[i].xyz * (ghost_normal_dist), 0.0);
                 break;
             }
         }
     }
+
     // Show Ghost Particles
     /*
     for (int i = 0; i < ghost_size; i++)

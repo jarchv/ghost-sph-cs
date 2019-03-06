@@ -8,8 +8,8 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 100;
-const int ghost_size   =  ghost_angle_res * ghost_angle_res;
+int ghost_angle_res    = 80;
+const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
 int main() {
 	start(); //starts a 4.3 GL context+window
@@ -73,7 +73,7 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 5.0;
+    float obj_radio    = 4.8;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
@@ -133,7 +133,7 @@ int main() {
 
     glm::vec3 lightPos = glm::vec3(-3,15,-20);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
-    glUniform1f(TransparentID,1.0);
+    glUniform1f(TransparentID,0.5);
 
     glUseProgram(shader_program);
     GLuint LightID_p        = glGetUniformLocation(shader_program, "LightPosition_worldspace_p");
@@ -208,7 +208,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
         //glDisableVertexAttribArray(0);
         //glDisableVertexAttribArray(1);

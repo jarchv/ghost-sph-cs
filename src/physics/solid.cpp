@@ -14,9 +14,9 @@ void build_ghost_particles(	std::vector<glm::vec4>& ghost_pos,
     float PI_ = 3.14159;
 	float phi   = 2 * PI_ / ((float)angle_res);
 	float theta =     PI_ / ((float)angle_res);
-    
+    float dr    = radius  / ((float)angle_res);
     int px, py, pz;
-
+    
 	for (int i = 0; i < angle_res; i++)
 	{
 		for (int j = 0; j < angle_res; j++) 
