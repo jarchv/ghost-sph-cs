@@ -127,8 +127,7 @@ bool check_program_errors(GLuint program)
     }
 }
 
-GLuint create_ssbos(int ghost_angle_res, const int ghost_size) {
-
+GLuint create_ssbos(int ghost_angle_res, int& ghost_size) {
     std::vector<glm::vec4>  positionData(num_fluid_p);
     std::vector<glm::vec4>  velocityData(num_fluid_p);
     std::vector<glm::vec4>  forceData(num_fluid_p);
@@ -138,12 +137,15 @@ GLuint create_ssbos(int ghost_angle_res, const int ghost_size) {
     glm::vec3 ghost_center = glm::vec3(0.0, 0.0, 20.0);
 
 
-    std::vector<glm::vec4>  ghost_positions(ghost_size);
-    std::vector<glm::vec4>  ghost_normals(ghost_size);
+    std::vector<glm::vec4>  ghost_positions;
+    std::vector<glm::vec4>  ghost_normals;
 
     initializer(positionData, velocityData, forceData, densityData, pressureData, num_fluid_p);   
-
     build_ghost_particles(ghost_positions, ghost_normals, ghost_angle_res, 5.0, ghost_center);
+    
+    ghost_size = ghost_positions.size();
+
+    assert(ghost_size == ghost_normals.size());
     GLuint vao;
     
     glGenVertexArrays(1, &vao);
@@ -187,7 +189,7 @@ GLuint create_ssbos(int ghost_angle_res, const int ghost_size) {
     GLuint ghost_positions_vbo;
     glGenBuffers(1                          ,   &ghost_positions_vbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER   ,   ghost_positions_vbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   ghost_size * sizeof(glm::vec4), 
+    glBufferData(GL_SHADER_STORAGE_BUFFER   ,   ghost_size *sizeof(glm::vec4), 
                                                 &ghost_positions[0], GL_STATIC_DRAW);
 
     GLuint ghost_normals_vbo;

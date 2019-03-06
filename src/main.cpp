@@ -8,14 +8,19 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 80;
-const int ghost_size   = ghost_angle_res * ghost_angle_res;
+int ghost_angle_res    = 100;
+//const int ghost_size = ghost_angle_res * ghost_angle_res;
+//const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
+int ghost_size_tmp;
 int main() {
 	start(); //starts a 4.3 GL context+window
 
-	GLuint vao  			= create_ssbos(ghost_angle_res, ghost_size);
+	GLuint vao  			= create_ssbos(ghost_angle_res, ghost_size_tmp);
 
+    const int ghost_size = ghost_size_tmp;
+
+    std::cout << "ghost_size : " << ghost_size << std::endl;
 	GLuint shader_program	= create_program(	"../src/shaders/particle_vertexShader.glsl", 
 												"../src/shaders/particle_geometryShader.glsl",
 											 	"../src/shaders/particle_fragmentShader.glsl");

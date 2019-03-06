@@ -1,15 +1,15 @@
 #version 430     
 
 float pradius   = 0.13f;
-float h         = pradius * 6; //h
+float h         = pradius * 3; //h
 float h_3       = h*h*h;
 float h_6       = h_3 * h_3;
 float h_9       = h_3 * h_6;
-float K         = 0.1f;
-float mu        = 0.001f;
+float K         = 0.0001f;
+float mu        = 0.005f;
 float MASS      = 0.02f;
 float invMASS   = 1.0f/MASS;
-float eps   = 1e-12;
+float eps       = 1e-12;
 
 struct Particle
 {
@@ -133,7 +133,7 @@ void main()
 
 
     p_force[index_x]   = gravity * MASS;
-    p_density[index_x] = 0.0;
+    p_density[index_x] = 0.0; 
 
     vec4 position_src  = p_position[index_x];
 
@@ -355,7 +355,7 @@ void main()
                 Vliquid_N = dot(velocity_src.xyz, ghost_normal[i].xyz);
                 Vghost    = vec4(velocity_src.xyz - Vliquid_N * ghost_normal[i].xyz, 0.0);
 
-                XSPH(p_velocity[index_x], Vghost, density_src, delta, mu *30.0);            
+                XSPH(p_velocity[index_x], Vghost, density_src, delta, mu *50.0);            
             }
         }
         groupMemoryBarrier();
