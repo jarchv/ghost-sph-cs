@@ -5,7 +5,7 @@ float h         = pradius * 3; //h
 float h_3       = h*h*h;
 float h_6       = h_3 * h_3;
 float h_9       = h_3 * h_6;
-float K         = 0.01f;
+float K         = 0.1f;
 float mu        = 0.005f;
 float MASS      = 0.02f;
 float invMASS   = 1.0f/MASS;
@@ -21,7 +21,7 @@ struct Particle
     float press;
 };
 
-layout (local_size_x = 32) in;
+layout (local_size_x = 512) in;
 
 layout(std430, binding = 0) buffer pblock 
 {
@@ -119,11 +119,17 @@ void XSPH(  inout vec4 vi,
     vi += mu_var * (MASS / rhoj) * (vj - vi) * lapW_visco(delta, h, h_6);
 }
 
+float random (vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233)))*43758.5453123);
+}
+
 shared vec4  tmp[gl_WorkGroupSize.x];
 shared vec4  vel[gl_WorkGroupSize.x];
 shared float den[gl_WorkGroupSize.x];
 shared float press[gl_WorkGroupSize.x];
-shared vec4 ghost_normal[gl_WorkGroupSize.x];
+shared vec4  ghost_normal[gl_WorkGroupSize.x];
+
+
 void main()
 {
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
@@ -134,6 +140,19 @@ void main()
     {    
         p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
         compute_position(p_position[index_x], p_velocity[index_x], dt);
+        //p_position[index_x].w = 0.0;
+        return;
+    }
+
+    if (p_position[index_x].y < -30.0)
+    {    
+        float dtheta  = random(p_position[index_x].xz);
+        float dradius = random(p_position[index_x].xz);
+
+        p_position[index_x].x  = 0.5 * dradius * cos(dtheta * 2.0 * 3.14159);
+        p_position[index_x].y += 37.0;
+        p_position[index_x].z  = 0.5 * dradius * sin(dtheta * 2.0 * 3.14159) + 20.0;
+        p_velocity[index_x]    = vec4(0.0,-10.0,0.0,0.0);
         return;
     }
 
@@ -203,9 +222,6 @@ void main()
 
     float density_src = p_density[index_x];
     p_pressure[index_x] = K * (pow(density_src/1000.0, 7.0) - 1.0);
-    
-    
-
     
     float density_ngh;
     float press_factor;
@@ -393,9 +409,6 @@ void main()
             }
         }
     }
-
-    //if (p_position[index_x].y > 7.0)
-    //    p_position[index_x].w = 0.0;
     // Show Ghost Particles
     /*
     for (int i = 0; i < ghost_size; i++)

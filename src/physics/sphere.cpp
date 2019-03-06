@@ -19,7 +19,8 @@ void set_positions(std::vector<glm::vec4>& positions, glm::vec2 rh, glm::vec3 ce
 
         positions[i].x = epsilon_radius * rh.x * cos(2 * 3.14159 * epsilon_theta) + center.x;
         positions[i].z = epsilon_radius * rh.x * sin(2 * 3.14159 * epsilon_theta) + center.z;
-		positions[i].y = epsilon_z * rh.y - rh.y/2.0 + center.y;
+  
+		positions[i].y = epsilon_z * rh.y - rh.y/2.0 + center.y + (i/(10*1024))*1.0*rh.y;
 		positions[i].w = alpha;
 	}
 }
@@ -32,7 +33,7 @@ void initializer(   std::vector<glm::vec4>& positions,
                     int n)
 {
 	float y_ini         = 6.0;
-    float cilinder_h    = 12.0;
+    float cilinder_h    = 6.0;
     glm::vec2 cylinder 	= glm::vec2(1.0, cilinder_h);
 	glm::vec3 center	= glm::vec3(0.0, y_ini + cilinder_h/2.0,20.0);
 

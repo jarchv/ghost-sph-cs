@@ -78,7 +78,7 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 4.8;
+    float obj_radio    = 5.0;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
@@ -136,7 +136,7 @@ int main() {
     GLuint ViewMatrixID  = glGetUniformLocation(object_program, "V");
     GLuint ModelMatrixID = glGetUniformLocation(object_program, "M");  
 
-    glm::vec3 lightPos = glm::vec3(-3,15,-20);
+    glm::vec3 lightPos = glm::vec3(-10,35,0);
     glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
     glUniform1f(TransparentID,0.5);
 
@@ -213,7 +213,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
         //glDisableVertexAttribArray(0);
         //glDisableVertexAttribArray(1);
@@ -222,7 +222,7 @@ int main() {
         glUseProgram(acceleration_program);
         glUniform1f(1,num_fluid_p);
         glUniform1i(2,ghost_size);
-        glDispatchCompute(num_fluid_p/32, 1, 1);
+        glDispatchCompute(num_fluid_p/512, 1, 1);
         glEndQuery(GL_TIME_ELAPSED);
         //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -230,9 +230,9 @@ int main() {
         glUseProgram(shader_program);
 
         //MVP matrix
-        glUniformMatrix4fv(ModelMatrixID_p, 1, GL_FALSE, &ModelMatrix[0][0]);
         glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
         glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+        glUniformMatrix4fv(3, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
 
         glBindVertexArray(vao);
         glDrawArrays(GL_POINTS, 0, num_fluid_p);
