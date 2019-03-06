@@ -12,8 +12,6 @@ void set_positions(std::vector<glm::vec4>& positions, glm::vec2 rh, glm::vec3 ce
     float epsilon_radius;
 	for (int i = 0; i < n; i++)
 	{	
-        //epsilon_x = ((float)(rand()%1000) / 1000.0);
-        //epsilon_y = ((float)(rand()%1000) / 1000.0);
         epsilon_z = ((float)(rand()%1000) / 1000.0);
 
         epsilon_theta  = ((float)(rand()%1000) / 1000.0);
@@ -21,8 +19,6 @@ void set_positions(std::vector<glm::vec4>& positions, glm::vec2 rh, glm::vec3 ce
 
         positions[i].x = epsilon_radius * rh.x * cos(2 * 3.14159 * epsilon_theta) + center.x;
         positions[i].z = epsilon_radius * rh.x * sin(2 * 3.14159 * epsilon_theta) + center.z;
-        //positions[i].x = epsilon_x * parallelepiped.x - parallelepiped.x/2.0 + center.x;
-		//positions[i].y = epsilon_y * parallelepiped.y - parallelepiped.y/2.0 + center.y;// 		= glm::gaussRand(glm::vec4(0,0,0,1), glm::vec4(1, 0.2, 1, 0));
 		positions[i].y = epsilon_z * rh.y - rh.y/2.0 + center.y;
 		positions[i].w = alpha;
 	}
@@ -35,10 +31,12 @@ void initializer(   std::vector<glm::vec4>& positions,
                     std::vector<float>& pressure,
                     int n)
 {
-	glm::vec2 parallelepiped 	= glm::vec2(1.0,10.0);
-	glm::vec3 center			= glm::vec3(0.0,12.0,20.0);
+	float y_ini         = 6.0;
+    float cilinder_h    = 12.0;
+    glm::vec2 cylinder 	= glm::vec2(1.0, cilinder_h);
+	glm::vec3 center	= glm::vec3(0.0, y_ini + cilinder_h/2.0,20.0);
 
-	set_positions(positions, parallelepiped, center, n);
+	set_positions(positions, cylinder, center, n);
 
     
 	for (int i = 0; i < n; i++)

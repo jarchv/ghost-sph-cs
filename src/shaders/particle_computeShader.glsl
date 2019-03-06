@@ -5,7 +5,7 @@ float h         = pradius * 3; //h
 float h_3       = h*h*h;
 float h_6       = h_3 * h_3;
 float h_9       = h_3 * h_6;
-float K         = 0.0001f;
+float K         = 0.01f;
 float mu        = 0.005f;
 float MASS      = 0.02f;
 float invMASS   = 1.0f/MASS;
@@ -126,11 +126,16 @@ shared float press[gl_WorkGroupSize.x];
 shared vec4 ghost_normal[gl_WorkGroupSize.x];
 void main()
 {
-
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
     vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0);
 
+    if (p_position[index_x].y > 10.0)
+    {    
+        p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
+        compute_position(p_position[index_x], p_velocity[index_x], dt);
+        return;
+    }
 
     p_force[index_x]   = gravity * MASS;
     p_density[index_x] = 0.0; 
@@ -375,7 +380,7 @@ void main()
     {
         float delta  = length(position_src.xyz - ghost_p_position[i].xyz);
 
-        if (delta < h)
+        if (delta < h*1.5)
         {
 
             vec4 deltav             = position_src - ghost_p_position[i]; 
@@ -389,6 +394,8 @@ void main()
         }
     }
 
+    //if (p_position[index_x].y > 7.0)
+    //    p_position[index_x].w = 0.0;
     // Show Ghost Particles
     /*
     for (int i = 0; i < ghost_size; i++)
