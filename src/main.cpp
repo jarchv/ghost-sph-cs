@@ -8,7 +8,7 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 40;
+int ghost_angle_res    = 50;
 //const int ghost_size = ghost_angle_res * ghost_angle_res;
 //const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
@@ -255,7 +255,7 @@ int main() {
 
             sumTime += result * 1e-6;
             double avgTime = sumTime/((double)nframe);
-            std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms" <<std::endl;
+            //std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms" <<std::endl;
         }
 	}
 

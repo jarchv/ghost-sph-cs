@@ -396,7 +396,7 @@ void main()
     {
         float delta  = length(position_src.xyz - ghost_p_position[i].xyz);
 
-        if (delta < h*1.5)
+        if (delta < h*2.0)
         {
 
             vec4 deltav             = position_src - ghost_p_position[i]; 

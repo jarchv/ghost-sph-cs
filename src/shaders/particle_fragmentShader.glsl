@@ -28,7 +28,7 @@ void main()
 	float distance = length(LightPosition_worldspace_p - Position_worldspace);
 	float cosTheta = dot(n , l);
 	cosTheta       = clamp(cosTheta, 0.0, 1.0);
-	if (d > 0.5)
+	if (d > 0.99)
 		discard;
 	else
 	{
