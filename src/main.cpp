@@ -8,7 +8,7 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 80;
+int ghost_angle_res    = 2000;
 //const int ghost_size = ghost_angle_res * ghost_angle_res;
 //const int ghost_size   = ghost_angle_res * ghost_angle_res;
 

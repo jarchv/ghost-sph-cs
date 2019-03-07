@@ -1,7 +1,7 @@
 #version 430     
 
 float pradius   = 0.13f;
-float h         = pradius * 3; //h
+float h         = pradius * 3.0; //h
 float h_3       = h*h*h;
 float h_6       = h_3 * h_3;
 float h_9       = h_3 * h_6;
@@ -134,24 +134,27 @@ void main()
 {
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
-    vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0);
+    vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0)*1.0;
+    
     /*
-    if (p_position[index_x].y > 10.0)
+    if (p_position[index_x].y > 6.0)
     {    
-        p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
+        //gravity *= 0.3;
+        p_velocity[index_x] = vec4(0.0,-1.0,0.0,0.0);
         compute_position(p_position[index_x], p_velocity[index_x], dt);
         //p_position[index_x].w = 0.0;
         return;
     }
     */
+    
     if (p_position[index_x].y < -30.0)
     {    
         float dtheta  = random(p_position[index_x].xz);
         float dradius = random(p_position[index_x].xz);
 
-        p_position[index_x].x  = 0.5 * dradius * cos(dtheta * 2.0 * 3.14159);
+        p_position[index_x].x  = 0.5 * dradius * cos(dtheta * 2.0 * 3.14159*4.0/3.0);
         p_position[index_x].y += 33.0;
-        p_position[index_x].z  = 0.5 * dradius * sin(dtheta * 2.0 * 3.14159) + 20.0;
+        p_position[index_x].z  = 0.5 * dradius * sin(dtheta * 2.0 * 3.14159*4.0/3.0) + 20.0;
         p_velocity[index_x]    = vec4(0.0,-20.0,0.0,0.0);
         return;
     }
@@ -234,7 +237,6 @@ void main()
             //compute_position(p_position[index_x], p_velocity[index_x], dt);  
             
         }   
-        return;
     }
     
 
