@@ -92,7 +92,7 @@ int main() {
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
     
     std::vector<float> obj_color  = {1.0, 0.3, 0.3};
-    std::vector<float> obj_center = {0.0, -0.20, 20.0};
+    std::vector<float> obj_center = {0.0, -0.10, 20.0};
     
 
     static GLfloat *g_objectvertex_buffer_data = new GLfloat[objectSizeRes];
@@ -251,7 +251,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
         
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{

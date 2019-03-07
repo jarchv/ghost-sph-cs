@@ -137,10 +137,16 @@ void main()
     vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0)*1.0;
     
     /*
-    if (p_position[index_x].y > 6.0)
+    if (p_position[index_x].y > 3.0)
     {    
+        float r = 0.5;
+        if (p_position[index_x].x > 0.2)
+            p_position[index_x].x = 0.2;
+
+        if (p_position[index_x].z > 0.2)
+            p_position[index_x].z = 0.2;
         //gravity *= 0.3;
-        p_velocity[index_x] = vec4(0.0,-1.0,0.0,0.0);
+        p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
         compute_position(p_position[index_x], p_velocity[index_x], dt);
         //p_position[index_x].w = 0.0;
         return;
@@ -228,7 +234,7 @@ void main()
     *  ===================
     */
     
-    if (p_density[index_x] == 0)
+    if (p_density[index_x] <= 100.)
     {
         for (int ai = 0; ai < 10; ai++)
         {
@@ -239,11 +245,15 @@ void main()
         }   
     }
     
+    if (p_density[index_x] > 1e4)
+    {
+        p_density[index_x] = 10000;
+    }
 
 
 
     float density_src = p_density[index_x]; 
-    p_pressure[index_x] = K * (pow(density_src/1000.0, 7.0) - 1.0);
+    p_pressure[index_x] = K * (pow(density_src/1000.0, 1.0) - 1.0);
     
     float density_ngh;
     float press_factor;
