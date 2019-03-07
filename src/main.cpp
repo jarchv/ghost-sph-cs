@@ -78,13 +78,13 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 2.1;
+    float obj_radio    = 2.2;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
     
     std::vector<float> obj_color  = {1.0, 0.3, 0.3};
-    std::vector<float> obj_center = {0.0, 0.0, 20.0};
+    std::vector<float> obj_center = {0.0, -0.20, 20.0};
     
 
     static GLfloat *g_objectvertex_buffer_data = new GLfloat[objectSizeRes];

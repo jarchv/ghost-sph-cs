@@ -19,7 +19,7 @@ void main()
 	vec3 LightColor  = vec3(1.0f,1.0f,1.0f);
 	float LightPower = 40.0f;
 
-	vec3 MaterialDiffuseColor  = vec3(0.0,0.46,0.74); // *(1-d) : illumination
+	vec3 MaterialDiffuseColor  = vec3(0.0,0.46,0.74)*(1-d);// : illumination
 	vec3 MaterialAmbientColor  = vec3(0.5,0.5,0.5) * MaterialDiffuseColor;
 
 	vec3 n = normalize(Normal_cameraspace);
@@ -28,7 +28,7 @@ void main()
 	float distance = length(LightPosition_worldspace_p - Position_worldspace);
 	float cosTheta = dot(n , l);
 	cosTheta       = clamp(cosTheta, 0.0, 1.0);
-	if (d > 0.99)
+	if (d > 0.3)
 		discard;
 	else
 	{
