@@ -138,7 +138,7 @@ void main()
 
     if (p_position[index_x].y > 10.0)
     {    
-        p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
+        p_velocity[index_x] = vec4(0.0,-15.0,0.0,0.0);
         compute_position(p_position[index_x], p_velocity[index_x], dt);
         //p_position[index_x].w = 0.0;
         return;
@@ -150,9 +150,9 @@ void main()
         float dradius = random(p_position[index_x].xz);
 
         p_position[index_x].x  = 0.5 * dradius * cos(dtheta * 2.0 * 3.14159);
-        p_position[index_x].y += 37.0;
+        p_position[index_x].y += 33.0;
         p_position[index_x].z  = 0.5 * dradius * sin(dtheta * 2.0 * 3.14159) + 20.0;
-        p_velocity[index_x]    = vec4(0.0,-10.0,0.0,0.0);
+        p_velocity[index_x]    = vec4(0.0,-20.0,0.0,0.0);
         return;
     }
 

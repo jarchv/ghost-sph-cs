@@ -15,16 +15,16 @@ glm::mat4 getProjectionMatrix()
 
 // Initial position : +Z
 
-glm::vec3 position = glm::vec3(0.0, -10.0, -30.0);
+glm::vec3 position = glm::vec3(0.0, 10.0, 0.0);
 //glm::vec3 position = glm::vec3(0.0, 0.0, 5.0);
 // Initial angles : 
 
 float initialFov      = 45.0f;
 
-float horizontalAngle = 0.0f;
-float verticalAngle   = 0.0f;
-float speed 		  = 3.0f;
-float mouseSpeed 	  = 0.001f;
+float horizontalAngle =  0.0f;
+float verticalAngle   = -0.7f;
+float speed 		  =  3.0f;
+float mouseSpeed 	  =  0.001f;
 
 void computeMatricesFromInputs()
 {

@@ -8,7 +8,7 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 100;
+int ghost_angle_res    = 40;
 //const int ghost_size = ghost_angle_res * ghost_angle_res;
 //const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
@@ -78,7 +78,7 @@ int main() {
     * ================
     */
 
-    float obj_radio    = 5.0;
+    float obj_radio    = 2.1;
     int   obj_angleres = 100;
     int   nSphVtx      = 18;
     int objectSizeRes  = nSphVtx * obj_angleres * obj_angleres;
@@ -150,16 +150,18 @@ int main() {
     * ==========
     */
 
+    double sumTime = 0.0;
     GLuint query;
     glGenQueries(1, &query);
 
     int nframe = 0;
 	while(!glfwWindowShouldClose(window))
 	{
-		//glClear(GL_COLOR_BUFFER_BIT);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBeginQuery(GL_TIME_ELAPSED, query);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         nframe++;
-        glBeginQuery(GL_TIME_ELAPSED, query);
+       
 
 		
         glUseProgram(object_program);
@@ -223,7 +225,7 @@ int main() {
         glUniform1f(1,num_fluid_p);
         glUniform1i(2,ghost_size);
         glDispatchCompute(num_fluid_p/512, 1, 1);
-        glEndQuery(GL_TIME_ELAPSED);
+        
         //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // normal drawing pass
@@ -244,11 +246,16 @@ int main() {
 
         glfwPollEvents();
 		glfwSwapBuffers(window);
+
+        glEndQuery(GL_TIME_ELAPSED);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         {
             GLuint64 result;
             glGetQueryObjectui64v(query, GL_QUERY_RESULT, &result);
-            //std::cout << result*1.e-6 << " ms/frame" << std::endl;
+
+            sumTime += result * 1e-6;
+            double avgTime = sumTime/((double)nframe);
+            std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms" <<std::endl;
         }
 	}
 

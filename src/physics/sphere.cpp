@@ -33,8 +33,8 @@ void initializer(   std::vector<glm::vec4>& positions,
                     int n)
 {
 	float y_ini         = 6.0;
-    float cilinder_h    = 6.0;
-    glm::vec2 cylinder 	= glm::vec2(1.0, cilinder_h);
+    float cilinder_h    = 12.0;
+    glm::vec2 cylinder 	= glm::vec2(0.5, cilinder_h);
 	glm::vec3 center	= glm::vec3(0.0, y_ini + cilinder_h/2.0,20.0);
 
 	set_positions(positions, cylinder, center, n);

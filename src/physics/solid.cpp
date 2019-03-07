@@ -22,7 +22,7 @@ void build_ghost_particles(	std::vector<glm::vec4>& ghost_pos,
 	for (int j = 0; j < angle_res; j++) 
 	{
 		theta = dtheta*j;
-		float phi_dom = 1.0 + (float(angle_res) - 1.0)*(1.0 - abs(PI_/2 - theta)*2/PI_);
+		float phi_dom = 10.0 + (float(angle_res) - 10.0)*(1.0 - abs(PI_/2 - theta)*2/PI_);
 
 		dphi = 2.0 * PI_ / phi_dom;
 		for (int i = 0; i < int(phi_dom); i++)

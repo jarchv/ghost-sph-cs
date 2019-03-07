@@ -141,7 +141,7 @@ GLuint create_ssbos(int ghost_angle_res, int& ghost_size) {
     std::vector<glm::vec4>  ghost_normals;
 
     initializer(positionData, velocityData, forceData, densityData, pressureData, num_fluid_p);   
-    build_ghost_particles(ghost_positions, ghost_normals, ghost_angle_res, 5.0, ghost_center);
+    build_ghost_particles(ghost_positions, ghost_normals, ghost_angle_res, 2.0, ghost_center);
     
     ghost_size = ghost_positions.size();
 
