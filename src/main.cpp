@@ -13,6 +13,14 @@ int ghost_angle_res    = 2000;
 //const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
 int ghost_size_tmp;
+
+const char* cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s 1280x720 -i - "
+                  "-threads 0 -preset fast -y -pix_fmt yuv420p -crf 21 -vf vflip output.mp4";
+
+FILE* ffmpeg = popen(cmd, "w");
+
+int* buffer = new int[WINDOW_W*WINDOW_H];
+
 int main() {
 	start(); //starts a 4.3 GL context+window
 
@@ -164,18 +172,44 @@ int main() {
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         nframe++;
        
-
-		
-        glUseProgram(object_program);
         computeMatricesFromInputs();
         glm::mat4 ProjectionMatrix  = getProjectionMatrix();
         glm::mat4 ViewMatrix        = getViewMatrix();
-		glm::mat4 ModelMatrix       = glm::mat4(1.0);
+        glm::mat4 ModelMatrix       = glm::mat4(1.0);
         glm::mat4 MVP               = ProjectionMatrix * ViewMatrix * ModelMatrix;   
+		
         
+
+        
+        
+
+
+        //glDisableVertexAttribArray(0);
+        //glDisableVertexAttribArray(1);
+        //glDisableVertexAttribArray(2);
+        
+        glUseProgram(acceleration_program);
+        glUniform1f(1,num_fluid_p);
+        glUniform1i(2,ghost_size);
+        glDispatchCompute(num_fluid_p/512, 1, 1);
+        
+        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+        // normal drawing pass
+        glUseProgram(shader_program);
+
+        //MVP matrix
+        glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+        glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+        glUniformMatrix4fv(3, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+        glBindVertexArray(vao);
+        glDrawArrays(GL_POINTS, 0, num_fluid_p);
+
         
         // Send our transformation to the currently bound shader, 
-		// in the "MVP" uniform
+        // in the "MVP" uniform
+        glUseProgram(object_program);
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
         glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
         glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
@@ -217,30 +251,8 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
-
-        //glDisableVertexAttribArray(0);
-        //glDisableVertexAttribArray(1);
-        //glDisableVertexAttribArray(2);
+        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
         
-        glUseProgram(acceleration_program);
-        glUniform1f(1,num_fluid_p);
-        glUniform1i(2,ghost_size);
-        glDispatchCompute(num_fluid_p/512, 1, 1);
-        
-        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-        // normal drawing pass
-        glUseProgram(shader_program);
-
-        //MVP matrix
-        glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-        glUniformMatrix4fv(2, 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
-        glUniformMatrix4fv(3, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-
-        glBindVertexArray(vao);
-        glDrawArrays(GL_POINTS, 0, num_fluid_p);
-
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
 			glfwSetWindowShouldClose(window, 1);
@@ -248,6 +260,12 @@ int main() {
 
         glfwPollEvents();
 		glfwSwapBuffers(window);
+
+        if (nframe %(steps_per_frame) == 0)
+        {
+            glReadPixels(0, 0, WINDOW_W, WINDOW_H, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            fwrite(buffer, sizeof(int)*WINDOW_W*WINDOW_H, 1, ffmpeg);
+        }
 
         glEndQuery(GL_TIME_ELAPSED);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -262,7 +280,7 @@ int main() {
             std::cout << ", recording = "<< rec_seconds << " s"<<std::endl;
         }
 	}
-
+    pclose(ffmpeg);
 	glDeleteProgram(shader_program);
 	glDeleteProgram(acceleration_program);
 	glDeleteProgram(object_program);
