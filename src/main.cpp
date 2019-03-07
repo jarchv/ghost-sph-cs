@@ -8,7 +8,7 @@
 #include "commons/loadshader.h"
 #include "commons/controls.h"
 
-int ghost_angle_res    = 50;
+int ghost_angle_res    = 80;
 //const int ghost_size = ghost_angle_res * ghost_angle_res;
 //const int ghost_size   = ghost_angle_res * ghost_angle_res;
 
@@ -38,7 +38,7 @@ int main() {
 
 	
 
-	float dt = 5.0f/600.0f;
+	float dt = 4.0f/600.0f;
 
     //float dt = 0.0f;
     glUseProgram(acceleration_program);
@@ -155,6 +155,8 @@ int main() {
     glGenQueries(1, &query);
 
     int nframe = 0;
+    int steps_per_frame = 2; 
+    float rec_seconds   = 0;
 	while(!glfwWindowShouldClose(window))
 	{
 		glBeginQuery(GL_TIME_ELAPSED, query);
@@ -215,7 +217,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
 
         //glDisableVertexAttribArray(0);
         //glDisableVertexAttribArray(1);
@@ -255,7 +257,9 @@ int main() {
 
             sumTime += result * 1e-6;
             double avgTime = sumTime/((double)nframe);
-            //std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms" <<std::endl;
+            std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms";
+            rec_seconds = (float)nframe / (20.0 * (float)steps_per_frame);
+            std::cout << ", recording = "<< rec_seconds << " s"<<std::endl;
         }
 	}
 

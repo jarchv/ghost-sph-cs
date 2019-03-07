@@ -5,7 +5,7 @@ float h         = pradius * 3; //h
 float h_3       = h*h*h;
 float h_6       = h_3 * h_3;
 float h_9       = h_3 * h_6;
-float K         = 0.1f;
+float K         = 0.5f;
 float mu        = 0.005f;
 float MASS      = 0.02f;
 float invMASS   = 1.0f/MASS;
@@ -229,7 +229,7 @@ void main()
     {
         for (int ai = 0; ai < 10; ai++)
         {
-            compute_density(h*0.5, MASS, h, h_9, p_density[index_x]);
+            compute_density(h*0.5, MASS*2, h, h_9, p_density[index_x]);
             //compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
             //compute_position(p_position[index_x], p_velocity[index_x], dt);  
             
