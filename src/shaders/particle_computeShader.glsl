@@ -326,10 +326,7 @@ void main()
     
     compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
 
-    vec4 velocity_src  = p_velocity[index_x];
-    float v_ghost_normal_solid;
-
-
+    //vec4 velocity_src  = p_velocity[index_x];
 
     
     /*
@@ -393,8 +390,8 @@ void main()
                 *
                 */
 
-                Vliquid_N = dot(velocity_src.xyz, ghost_normal[i].xyz);
-                Vghost    = vec4(velocity_src.xyz - Vliquid_N * ghost_normal[i].xyz, 0.0);
+                Vliquid_N = dot( p_velocity[index_x].xyz, ghost_normal[i].xyz);
+                Vghost    = vec4( p_velocity[index_x].xyz - Vliquid_N * ghost_normal[i].xyz, 0.0);
 
                 XSPH(p_velocity[index_x], Vghost, density_src, delta, mu *50.0);            
             }
