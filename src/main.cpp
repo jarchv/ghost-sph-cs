@@ -14,7 +14,7 @@ int ghost_angle_res    = 2000;
 
 int ghost_size_tmp;
 
-const char* cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s 1280x720 -i - "
+const char* cmd = "ffmpeg -r 20 -f rawvideo -pix_fmt rgba -s 640x480 -i - "
                   "-threads 0 -preset fast -y -pix_fmt yuv420p -crf 21 -vf vflip output.mp4";
 
 FILE* ffmpeg = popen(cmd, "w");
@@ -251,7 +251,7 @@ int main() {
             (void*)0    // array buffer offset
         );
 
-        glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
+        //glDrawArrays(GL_TRIANGLES, 0, objectSizeRes/3);
         
 		if(GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
 		{
