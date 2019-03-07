@@ -17,8 +17,9 @@ void set_positions(std::vector<glm::vec4>& positions, glm::vec2 rh, glm::vec3 ce
         epsilon_theta  = ((float)(rand()%1000) / 1000.0);
         epsilon_radius = ((float)(rand()%1000) / 1000.0);
 
-        positions[i].x = epsilon_radius * rh.x * cos(2 * 3.14159 * epsilon_theta) + center.x;
-        positions[i].z = epsilon_radius * rh.x * sin(2 * 3.14159 * epsilon_theta) + center.z;
+
+        positions[i].x = epsilon_radius * rh.x * cos(1.5 * 3.14159 * epsilon_theta - 3.14159*1.25) + center.x;
+        positions[i].z = epsilon_radius * rh.x * sin(1.5 * 3.14159 * epsilon_theta - 3.14159*1.25) + center.z;
   
 		positions[i].y = epsilon_z * rh.y - rh.y/2.0 + center.y + (i/(10*1024))*1.0*rh.y;
 		positions[i].w = alpha;

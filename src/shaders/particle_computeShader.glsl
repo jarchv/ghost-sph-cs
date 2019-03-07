@@ -135,15 +135,15 @@ void main()
     int N        = int(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
     int index_x  = int(gl_GlobalInvocationID);
     vec4 gravity = vec4(0.0, -9.80, 0.0, 0.0);
-
+    /*
     if (p_position[index_x].y > 10.0)
     {    
-        p_velocity[index_x] = vec4(0.0,-15.0,0.0,0.0);
+        p_velocity[index_x] = vec4(0.0,-10.0,0.0,0.0);
         compute_position(p_position[index_x], p_velocity[index_x], dt);
         //p_position[index_x].w = 0.0;
         return;
     }
-
+    */
     if (p_position[index_x].y < -30.0)
     {    
         float dtheta  = random(p_position[index_x].xz);
@@ -220,7 +220,27 @@ void main()
         barrier();
     }
 
-    float density_src = p_density[index_x];
+    /*
+    *  Ghost Air Particles
+    *  ===================
+    */
+    
+    if (p_density[index_x] == 0)
+    {
+        for (int ai = 0; ai < 10; ai++)
+        {
+            compute_density(h*0.5, MASS, h, h_9, p_density[index_x]);
+            //compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
+            //compute_position(p_position[index_x], p_velocity[index_x], dt);  
+            
+        }   
+        return;
+    }
+    
+
+
+
+    float density_src = p_density[index_x]; 
     p_pressure[index_x] = K * (pow(density_src/1000.0, 7.0) - 1.0);
     
     float density_ngh;
