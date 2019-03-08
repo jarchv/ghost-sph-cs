@@ -238,7 +238,7 @@ void main()
     {
         for (int ai = 0; ai < 10; ai++)
         {
-            compute_density(h*0.5, MASS*2, h, h_9, p_density[index_x]);
+            compute_density(h*0.5, MASS*1.5, h, h_9, p_density[index_x]);
             //compute_velocity(p_velocity[index_x], p_force[index_x].xyz, invMASS, dt);
             //compute_position(p_position[index_x], p_velocity[index_x], dt);  
             

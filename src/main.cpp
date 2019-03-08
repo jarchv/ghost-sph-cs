@@ -267,18 +267,18 @@ int main() {
             fwrite(buffer, sizeof(int)*WINDOW_W*WINDOW_H, 1, ffmpeg);
         }
 
-        glEndQuery(GL_TIME_ELAPSED);
+        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        {
-            GLuint64 result;
-            glGetQueryObjectui64v(query, GL_QUERY_RESULT, &result);
 
-            sumTime += result * 1e-6;
-            double avgTime = sumTime/((double)nframe);
-            std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms";
-            rec_seconds = (float)nframe / (20.0 * (float)steps_per_frame);
-            std::cout << ", recording = "<< rec_seconds << " s"<<std::endl;
-        }
+        glEndQuery(GL_TIME_ELAPSED);
+        GLuint64 result;
+        glGetQueryObjectui64v(query, GL_QUERY_RESULT, &result);
+
+        sumTime += result * 1e-6;
+        double avgTime = sumTime/((double)nframe);
+        std::cout << result*1.e-6 << " ms/frame" << ", avgTime = "<< avgTime << " ms";
+        rec_seconds = (float)nframe / (20.0 * (float)steps_per_frame);
+        std::cout << ", recording = "<< rec_seconds << " s"<<std::endl;
 	}
     pclose(ffmpeg);
 	glDeleteProgram(shader_program);
