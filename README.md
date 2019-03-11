@@ -1,2 +1,13 @@
-# ghost-sph-cs
-Ghost SPH - Compute Shader
+# Ghost SPH on GPU with Compute Shader
+
+## Execution
+
+
+```
+git checkout 
+mkdir build
+cd build
+cmake ..
+make
+./out
+```

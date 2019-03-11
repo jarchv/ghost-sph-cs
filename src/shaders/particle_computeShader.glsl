@@ -72,13 +72,7 @@ void compute_position(inout vec4 position, vec4 velocity, float dt)
     position = vec4(position.xyz + velocity.xyz *dt, 1.0);
 }
 
-float W_poly(float delta, float h, float h_9)
-{
-    float dif    = (h * h  - delta * delta);
-    float factor = dif * dif * dif;
 
-    return factor * 315.0 /(64.0 * h_9 * 3.14159);
-}
 
 vec3 gradW_press(vec3 deltav, float h, float h_6)
 {
@@ -92,15 +86,24 @@ vec3 gradW_press(vec3 deltav, float h, float h_6)
     return  factor * normalize(deltav); 
 }
 
-float lapW_visco(float delta, float h, float h_6)
+
+float W_poly(float delta, float h, float h_9)
 {
-    return 45.0 * (h - delta)/ (3.14159 * h_6);
+    float dif     = (h * h  - delta * delta);
+    float factor  = dif * dif * dif;
+
+    return factor * 315.0 /(64.0 * h_9 * 3.14159);
 }
 
-void compute_density(float delta, float MASS, float h, float h_9, inout float density)
+void compute_density( float         delta, 
+                      float         MASS, 
+                      float         h, 
+                      float         h_9, 
+                      inout float   density)
 {
     density += MASS * W_poly(delta, h, h_9);
 }
+
 
 vec4 pressure_force(float Pi, float Pj, float rhoi, float rhoj, vec4 deltav)
 {
@@ -110,11 +113,17 @@ vec4 pressure_force(float Pi, float Pj, float rhoi, float rhoj, vec4 deltav)
     return  vec4(gradW_press(deltav.xyz, h, h_6),0.0) * press_factor;
 }
 
-void XSPH(  inout vec4 vi, 
-            vec4 vj, 
-            float rhoj, 
-            float delta,
-            float mu_var)
+float lapW_visco(float delta, float h, float h_6)
+{
+    return 45.0 * (h - delta)/ (3.14159 * h_6);
+}
+
+
+void XSPH(  inout vec4  vi, 
+            vec4        vj, 
+            float       rhoj, 
+            float       delta,
+            float       mu_var)
 {
     vi += mu_var * (MASS / rhoj) * (vj - vi) * lapW_visco(delta, h, h_6);
 }
@@ -251,8 +260,10 @@ void main()
     }
 
 
+    p_pressure[index_x] = K * (density_src/1000.0 - 1.0);
 
-    float density_src = p_density[index_x]; 
+
+    float density_src   = p_density[index_x]; 
     p_pressure[index_x] = K * (pow(density_src/1000.0, 1.0) - 1.0);
     
     float density_ngh;
